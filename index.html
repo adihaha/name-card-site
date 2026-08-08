@@ -70,6 +70,25 @@
   }
   .field select:focus, .field input[type=number]:focus{ border-color:var(--accent); }
   .field input[type=range]{ width:100%; accent-color:var(--accent); margin-top:8px; }
+  /* 滑块 + 数字输入组合 */
+  .fs-row{ display:flex; align-items:center; gap:8px; margin-top:8px; }
+  .fs-row input[type=range]{ flex:1; margin-top:0; min-width:0; }
+  .fs-row input[type=number]{ width:64px; flex:none; }
+  /* 对齐方式按钮组 */
+  .align-row{ display:flex; gap:6px; margin-top:8px; }
+  .align-row button{
+    flex:1; padding:7px 4px; font-size:12.5px; cursor:pointer;
+    border:1px solid #cfd4e0; border-radius:7px; background:#fbfcfe; color:var(--ink);
+  }
+  .align-row button.active{
+    background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700;
+  }
+  /* 加粗开关 */
+  .check-row{
+    display:flex; align-items:center; gap:7px; margin-top:9px;
+    font-size:13px; color:#5a6072; cursor:pointer; user-select:none;
+  }
+  .check-row input{ accent-color:var(--accent); width:16px; height:16px; cursor:pointer; }
 
   .p-row{ display:flex; gap:14px; align-items:stretch; }
   .p-row textarea{
@@ -164,7 +183,7 @@
     <summary>📖 使用说明（点击折叠）</summary>
     <ol>
       <li>在下方「名单」框输入：每行一个「姓名 单位」（空格或 Tab 分隔），只写姓名也可以。</li>
-      <li>选择尺寸预设（大 / 中 / 小）或输入自定义宽高；拖动滑块调节姓名、单位字号与牌间距。</li>
+      <li>选择尺寸预设（大 / 中 / 小）或输入自定义宽高；姓名、单位字号可拖动滑块或直接输入数字（1–200px），并可分别设置对齐方式与加粗。</li>
       <li>预览实时更新：每个浅色边框框 = 一页 A4（210×297mm），超出自动续排并显示页码。</li>
       <li>打印：点击「打印」按钮或 Ctrl/Cmd+P。打印时控制面板与说明自动隐藏，只输出姓名牌。</li>
     </ol>
@@ -193,11 +212,41 @@
       </div>
       <div class="field">
         <label>姓名字号 <span id="nameVal" class="val">28px</span></label>
-        <input id="nameFs" type="range" min="16" max="96" step="1" value="28">
+        <div class="fs-row">
+          <input id="nameFs" type="range" min="16" max="200" step="1" value="28">
+          <input id="nameFsNum" type="number" min="1" max="300" step="1" value="28">
+        </div>
+      </div>
+      <div class="field">
+        <label>名字对齐</label>
+        <div class="align-row" id="nameAlignRow">
+          <button type="button" data-align="left">居左</button>
+          <button type="button" data-align="center" class="active">居中</button>
+          <button type="button" data-align="justify">两端</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>名字加粗</label>
+        <label class="check-row"><input id="nameBold" type="checkbox" checked> 粗体显示</label>
       </div>
       <div class="field">
         <label>单位字号 <span id="orgVal" class="val">14px</span></label>
-        <input id="orgFs" type="range" min="10" max="40" step="1" value="14">
+        <div class="fs-row">
+          <input id="orgFs" type="range" min="10" max="200" step="1" value="14">
+          <input id="orgFsNum" type="number" min="1" max="300" step="1" value="14">
+        </div>
+      </div>
+      <div class="field">
+        <label>单位对齐</label>
+        <div class="align-row" id="orgAlignRow">
+          <button type="button" data-align="left">居左</button>
+          <button type="button" data-align="center" class="active">居中</button>
+          <button type="button" data-align="justify">两端</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>单位加粗</label>
+        <label class="check-row"><input id="orgBold" type="checkbox"> 粗体显示</label>
       </div>
       <div class="field">
         <label>牌间距 <span id="gapVal" class="val">5mm</span></label>
@@ -236,9 +285,14 @@
   var CW = 190, CH = 277;
 
   var presetSel = $('preset'), wIn = $('w'), hIn = $('h'),
-      nameFs = $('nameFs'), orgFs = $('orgFs'), gapIn = $('gap'),
-      list = $('list'), pages = $('pages'), stat = $('stat'),
+      nameFs = $('nameFs'), nameFsNum = $('nameFsNum'),
+      orgFs = $('orgFs'), orgFsNum = $('orgFsNum'),
+      nameBold = $('nameBold'), orgBold = $('orgBold'),
+      nameAlignRow = $('nameAlignRow'), orgAlignRow = $('orgAlignRow'),
+      gapIn = $('gap'), list = $('list'), pages = $('pages'), stat = $('stat'),
       nameVal = $('nameVal'), orgVal = $('orgVal'), gapVal = $('gapVal');
+
+  var state = { nameAlign: 'center', orgAlign: 'center' };
 
   function esc(s) {
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -267,6 +321,10 @@
     orgVal.textContent = orgSize + 'px';
     gapVal.textContent = gap + 'mm';
 
+    var nameWeight = nameBold.checked ? 700 : 400;
+    var orgWeight = orgBold.checked ? 700 : 400;
+    var nameTA = state.nameAlign, orgTA = state.orgAlign;
+
     var people = parsePeople(list.value);
     var cardH = H * 2; /* 展开总高 = 两个显示面 */
 
@@ -288,8 +346,8 @@
               'grid-template-rows:repeat(' + rows + ',' + cardH + 'mm);gap:' + gap + 'mm">';
       slice.forEach(function (pe) {
         html += '<div class="card" style="width:' + W + 'mm;height:' + cardH + 'mm">' +
-          '<div class="face top"><div class="name" style="font-size:' + nameSize + 'px">' + esc(pe.name) + '</div><div class="org" style="font-size:' + orgSize + 'px">' + esc(pe.org) + '</div></div>' +
-          '<div class="face bottom"><div class="name" style="font-size:' + nameSize + 'px">' + esc(pe.name) + '</div><div class="org" style="font-size:' + orgSize + 'px">' + esc(pe.org) + '</div></div>' +
+          '<div class="face top"><div class="name" style="font-size:' + nameSize + 'px;font-weight:' + nameWeight + ';text-align:' + nameTA + '">' + esc(pe.name) + '</div><div class="org" style="font-size:' + orgSize + 'px;font-weight:' + orgWeight + ';text-align:' + orgTA + '">' + esc(pe.org) + '</div></div>' +
+          '<div class="face bottom"><div class="name" style="font-size:' + nameSize + 'px;font-weight:' + nameWeight + ';text-align:' + nameTA + '">' + esc(pe.name) + '</div><div class="org" style="font-size:' + orgSize + 'px;font-weight:' + orgWeight + ';text-align:' + orgTA + '">' + esc(pe.org) + '</div></div>' +
           '</div>';
       });
       html += '</div><div class="page-num">第 ' + (p + 1) + ' 页 / 共 ' + pageCount + ' 页</div>';
@@ -327,7 +385,44 @@
   [wIn, hIn].forEach(function (inp) {
     inp.addEventListener('input', function () { presetSel.value = 'custom'; render(); });
   });
-  [nameFs, orgFs, gapIn, list].forEach(function (inp) {
+
+  /* --- 字号：滑块 ↔ 数字输入 双向同步（数字可手动输入任意值，上限 200） --- */
+  function bindFsSync(slider, num) {
+    slider.addEventListener('input', function () {
+      num.value = slider.value;
+      render();
+    });
+    num.addEventListener('input', function () {
+      var v = parseInt(num.value, 10);
+      if (isNaN(v)) { v = slider.value; }          /* 输入框清空时回退滑块值 */
+      v = Math.min(200, Math.max(1, v));           /* 1–200 上限 */
+      slider.value = v;
+      num.value = v;
+      render();
+    });
+  }
+  bindFsSync(nameFs, nameFsNum);
+  bindFsSync(orgFs, orgFsNum);
+
+  /* --- 对齐方式按钮组 --- */
+  function bindAlign(row, key) {
+    row.addEventListener('click', function (e) {
+      var btn = e.target.closest('button');
+      if (!btn) return;
+      row.querySelectorAll('button').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      state[key] = btn.getAttribute('data-align');
+      render();
+    });
+  }
+  bindAlign(nameAlignRow, 'nameAlign');
+  bindAlign(orgAlignRow, 'orgAlign');
+
+  [nameBold, orgBold].forEach(function (cb) {
+    cb.addEventListener('change', render);
+  });
+
+  [gapIn, list].forEach(function (inp) {
     inp.addEventListener('input', render);
   });
   $('printBtn').addEventListener('click', function () { window.print(); });
