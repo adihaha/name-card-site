@@ -118,7 +118,7 @@
   /* ============ 姓名牌（展开矩形，中间虚线对折成倒 V 帐篷） ============ */
   .card{
     background:#fff;
-    border:0.35mm solid #222;
+    border:0.2mm solid #e2e2ea;
     border-radius:1.2mm;
     display:flex; flex-direction:column;
     box-shadow:0 1px 3px rgba(0,0,0,.14);
@@ -193,11 +193,11 @@
       </div>
       <div class="field">
         <label>姓名字号 <span id="nameVal" class="val">28px</span></label>
-        <input id="nameFs" type="range" min="16" max="48" step="1" value="28">
+        <input id="nameFs" type="range" min="16" max="96" step="1" value="28">
       </div>
       <div class="field">
         <label>单位字号 <span id="orgVal" class="val">14px</span></label>
-        <input id="orgFs" type="range" min="10" max="24" step="1" value="14">
+        <input id="orgFs" type="range" min="10" max="40" step="1" value="14">
       </div>
       <div class="field">
         <label>牌间距 <span id="gapVal" class="val">5mm</span></label>
@@ -288,8 +288,8 @@
               'grid-template-rows:repeat(' + rows + ',' + cardH + 'mm);gap:' + gap + 'mm">';
       slice.forEach(function (pe) {
         html += '<div class="card" style="width:' + W + 'mm;height:' + cardH + 'mm">' +
-          '<div class="face top"><div class="name">' + esc(pe.name) + '</div><div class="org">' + esc(pe.org) + '</div></div>' +
-          '<div class="face bottom"><div class="name">' + esc(pe.name) + '</div><div class="org">' + esc(pe.org) + '</div></div>' +
+          '<div class="face top"><div class="name" style="font-size:' + nameSize + 'px">' + esc(pe.name) + '</div><div class="org" style="font-size:' + orgSize + 'px">' + esc(pe.org) + '</div></div>' +
+          '<div class="face bottom"><div class="name" style="font-size:' + nameSize + 'px">' + esc(pe.name) + '</div><div class="org" style="font-size:' + orgSize + 'px">' + esc(pe.org) + '</div></div>' +
           '</div>';
       });
       html += '</div><div class="page-num">第 ' + (p + 1) + ' 页 / 共 ' + pageCount + ' 页</div>';
@@ -301,10 +301,13 @@
       ['name', 'org'].forEach(function (cls) {
         var el = card.querySelector('.' + cls);
         if (!el) return;
-        var fs = parseFloat(getComputedStyle(el).fontSize);
-        while (el.scrollWidth > el.clientWidth + 1 && fs > 9) {
-          fs -= 1;
-          el.style.fontSize = fs + 'px';
+        var face = el.parentElement, fs = getComputedStyle(face);
+        /* 可用宽度 = 显示面内容区宽（减 padding）：防止长名字/单位溢出卡片 */
+        var avail = face.clientWidth - parseFloat(fs.paddingLeft) - parseFloat(fs.paddingRight);
+        var size = parseFloat(getComputedStyle(el).fontSize);
+        while (el.scrollWidth > avail + 1 && size > 9) {
+          size -= 1;
+          el.style.fontSize = size + 'px';
         }
       });
     });
