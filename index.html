@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>姓名牌编辑器 · 实时预览 / A4 自动分页 / 打印</title>
+<style>
+  /* ============ 基础 ============ */
+  :root{
+    --ink:#1a1a2e;
+    --gray:#7c7c8e;
+    --accent:#4a5b8f;
+    --accent-soft:#eef2fa;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{
+    font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",-apple-system,sans-serif;
+    color:var(--ink);
+  }
+  body{
+    background:#eef1f7;
+    padding:20px 24px 60px;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+
+  /* ============ 打印设置 ============ */
+  @page{ size:A4; margin:10mm; }
+
+  /* ============ 顶部使用说明（可折叠，打印隐藏） ============ */
+  .tips{
+    max-width:1180px; margin:0 auto 14px;
+    border:1px solid var(--accent); border-left:4px solid var(--accent);
+    background:var(--accent-soft); border-radius:10px;
+    padding:12px 18px; font-size:13px; line-height:1.8; color:#33415c;
+  }
+  .tips summary{
+    cursor:pointer; font-weight:700; color:var(--accent); font-size:14px; user-select:none;
+  }
+  .tips ol{ margin:8px 0 6px 20px; }
+  .tips .fold-tip{ margin-top:6px; font-size:13px; }
+  .tips b{ color:var(--accent); }
+
+  /* ============ 控制面板 ============ */
+  .panel{
+    max-width:1180px; margin:0 auto 18px;
+    background:#fff; border:1px solid #e2e4ec; border-radius:12px;
+    padding:16px 20px 14px;
+    box-shadow:0 2px 8px rgba(20,30,60,.07);
+  }
+  .panel-head{ display:flex; align-items:baseline; gap:10px; margin-bottom:14px; }
+  .panel-head h1{ font-size:19px; letter-spacing:.5px; }
+  .panel-head span{ font-size:12px; color:var(--gray); }
+
+  .p-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+    gap:10px 16px;
+    margin-bottom:12px;
+  }
+  .field label{
+    display:block; font-size:12px; color:#5a6072; margin-bottom:5px; white-space:nowrap;
+  }
+  .field label .val{ color:var(--accent); font-weight:700; }
+  .field select,
+  .field input[type=number]{
+    width:100%; padding:7px 9px; font-size:13px;
+    border:1px solid #cfd4e0; border-radius:7px; background:#fbfcfe;
+    color:var(--ink); outline:none;
+  }
+  .field select:focus, .field input[type=number]:focus{ border-color:var(--accent); }
+  .field input[type=range]{ width:100%; accent-color:var(--accent); margin-top:8px; }
+
+  .p-row{ display:flex; gap:14px; align-items:stretch; }
+  .p-row textarea{
+    flex:1; min-height:118px; resize:vertical;
+    padding:10px 12px; font-size:13.5px; line-height:1.7;
+    border:1px solid #cfd4e0; border-radius:8px; background:#fbfcfe;
+    font-family:inherit; color:var(--ink); outline:none;
+  }
+  .p-row textarea:focus{ border-color:var(--accent); }
+  .p-side{ display:flex; flex-direction:column; justify-content:space-between; gap:10px; width:220px; }
+  .stat{
+    font-size:12.5px; color:#44506b; background:#f4f6fb;
+    border:1px dashed #c3cadb; border-radius:8px; padding:10px 12px; line-height:1.6;
+  }
+  .stat b{ color:var(--accent); }
+  .print-btn{
+    padding:11px 14px; font-size:14px; font-weight:700; cursor:pointer;
+    color:#fff; background:var(--accent); border:none; border-radius:8px;
+    transition:filter .15s;
+  }
+  .print-btn:hover{ filter:brightness(1.08); }
+
+  /* ============ 预览区 ============ */
+  .pages{
+    display:flex; flex-direction:column; align-items:center;
+    gap:10mm; padding:2mm 0 10mm;
+  }
+  .page{
+    width:210mm; height:297mm;
+    background:#fff;
+    border:1px solid #d6dae4;
+    box-shadow:0 3px 14px rgba(20,30,60,.10);
+    padding:10mm;
+    display:grid;
+    place-content:center;
+  }
+  .page-num{
+    font-size:12px; color:#8a93a6; margin-top:-4mm; letter-spacing:1px;
+  }
+  .empty{
+    max-width:1180px; margin:40px auto; text-align:center;
+    color:#8a93a6; font-size:14px; background:#fff;
+    border:1px dashed #cfd4e0; border-radius:12px; padding:60px 20px;
+  }
+
+  /* ============ 姓名牌（展开矩形，中间虚线对折成倒 V 帐篷） ============ */
+  .card{
+    background:#fff;
+    border:0.35mm solid #222;
+    border-radius:1.2mm;
+    display:flex; flex-direction:column;
+    box-shadow:0 1px 3px rgba(0,0,0,.14);
+    overflow:hidden;
+    break-inside:avoid;
+  }
+  .card .face{
+    flex:1;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:1.2mm 2mm; gap:1mm;
+    overflow:hidden;
+  }
+  /* 上半显示面：名字正向；底部虚线 = 对折线（打印时显示） */
+  .card .face.top{ border-bottom:0.45mm dashed #b0b0be; }
+  /* 下半显示面：预旋转 180°，沿虚线对折后名字朝上为正 */
+  .card .face.bottom{ transform:rotate(180deg); }
+  .card .name{
+    font-weight:700; letter-spacing:1px; color:#111; line-height:1.2; white-space:nowrap;
+  }
+  .card .org{
+    color:#6b6b7b; line-height:1.25; white-space:nowrap;
+  }
+
+  /* ============ 打印：只输出姓名牌页 ============ */
+  @media print{
+    body{ background:#fff; padding:0; }
+    .tips, .panel, .page-num, .empty{ display:none !important; }
+    .pages{ display:block; padding:0; gap:0; }
+    .page{
+      width:190mm; height:277mm; /* = A4 210×297 - 四周 10mm 边距 */
+      padding:0; border:none; box-shadow:none;
+      margin:0;
+      page-break-after:always; break-after:page;
+    }
+    .page:last-child{ page-break-after:auto; break-after:auto; }
+    .card{ box-shadow:none; }
+  }
+</style>
+</head>
+<body>
+
+  <details class="tips" open>
+    <summary>📖 使用说明（点击折叠）</summary>
+    <ol>
+      <li>在下方「名单」框输入：每行一个「姓名 单位」（空格或 Tab 分隔），只写姓名也可以。</li>
+      <li>选择尺寸预设（大 / 中 / 小）或输入自定义宽高；拖动滑块调节姓名、单位字号与牌间距。</li>
+      <li>预览实时更新：每个浅色边框框 = 一页 A4（210×297mm），超出自动续排并显示页码。</li>
+      <li>打印：点击「打印」按钮或 Ctrl/Cmd+P。打印时控制面板与说明自动隐藏，只输出姓名牌。</li>
+    </ol>
+    <p class="fold-tip"><b>折叠方法：</b>沿每个姓名牌中间的<b>虚线</b>对折成倒 V 帐篷形，放置桌面后<b>上下两面名字都朝上</b>（下半名字已预先旋转 180°）。</p>
+  </details>
+
+  <div class="panel">
+    <div class="panel-head"><h1>姓名牌编辑器</h1><span>实时预览 · A4 自动分页 · 一键打印</span></div>
+    <div class="p-grid">
+      <div class="field">
+        <label>尺寸预设</label>
+        <select id="preset">
+          <option value="lg">大号 · 128×42mm（会议主桌牌）</option>
+          <option value="md" selected>中号 · 95×34mm（普通桌牌）</option>
+          <option value="sm">小号 · 62×22mm（座位卡）</option>
+          <option value="custom">自定义…</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>宽度 (mm)</label>
+        <input id="w" type="number" min="40" max="200" step="1" value="95">
+      </div>
+      <div class="field">
+        <label>高度 (mm)</label>
+        <input id="h" type="number" min="10" max="138" step="1" value="34">
+      </div>
+      <div class="field">
+        <label>姓名字号 <span id="nameVal" class="val">28px</span></label>
+        <input id="nameFs" type="range" min="16" max="48" step="1" value="28">
+      </div>
+      <div class="field">
+        <label>单位字号 <span id="orgVal" class="val">14px</span></label>
+        <input id="orgFs" type="range" min="10" max="24" step="1" value="14">
+      </div>
+      <div class="field">
+        <label>牌间距 <span id="gapVal" class="val">5mm</span></label>
+        <input id="gap" type="range" min="2" max="12" step="1" value="5">
+      </div>
+    </div>
+    <div class="p-row">
+      <textarea id="list" rows="6" placeholder="每行一个：姓名 单位（空格分隔，可只写姓名）">张伟 珠海华发集团
+李娜 腾讯科技
+王强 格力电器
+陈静 小米科技
+刘洋 珠海市政府
+赵敏 中山大学
+孙丽 华为技术
+周杰 南方电网
+吴芳 珠海横琴新区管委会
+郑凯 格力智能装备</textarea>
+      <div class="p-side">
+        <div id="stat" class="stat">…</div>
+        <button id="printBtn" class="print-btn" type="button">🖨 打印 / 导出 PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="pages" id="pages"></div>
+
+<script>
+(function () {
+  function $(id) { return document.getElementById(id); }
+  var PRESETS = {
+    lg: { w: 128, h: 42, label: '大号' },
+    md: { w: 95,  h: 34, label: '中号' },
+    sm: { w: 62,  h: 22, label: '小号' }
+  };
+  /* A4 竖版 210×297mm，@page 边距 10mm → 内容区 190×277mm */
+  var CW = 190, CH = 277;
+
+  var presetSel = $('preset'), wIn = $('w'), hIn = $('h'),
+      nameFs = $('nameFs'), orgFs = $('orgFs'), gapIn = $('gap'),
+      list = $('list'), pages = $('pages'), stat = $('stat'),
+      nameVal = $('nameVal'), orgVal = $('orgVal'), gapVal = $('gapVal');
+
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function parsePeople(text) {
+    var out = [];
+    text.split(/\r?\n/).forEach(function (line) {
+      var t = line.trim();
+      if (!t) return;
+      var parts = t.split(/\s+/); /* 空格或 Tab 分隔 */
+      out.push({ name: parts[0], org: parts.slice(1).join(' ') });
+    });
+    return out;
+  }
+
+  function render() {
+    /* --- 尺寸 --- */
+    var W = parseFloat(wIn.value) || 95, H = parseFloat(hIn.value) || 34;
+    W = Math.min(200, Math.max(40, W));
+    H = Math.min(138, Math.max(10, H));
+    wIn.value = W; hIn.value = H;
+
+    var nameSize = +nameFs.value, orgSize = +orgFs.value, gap = +gapIn.value;
+    nameVal.textContent = nameSize + 'px';
+    orgVal.textContent = orgSize + 'px';
+    gapVal.textContent = gap + 'mm';
+
+    var people = parsePeople(list.value);
+    var cardH = H * 2; /* 展开总高 = 两个显示面 */
+
+    /* --- 每页网格：向下排、自动分页 --- */
+    var cols = Math.max(1, Math.floor((CW + gap) / (W + gap)));
+    var rows = Math.max(1, Math.floor((CH + gap) / (cardH + gap)));
+    var perPage = cols * rows;
+
+    if (!people.length) {
+      pages.innerHTML = '<div class="empty">请在上方「名单」框输入：每行一个「姓名 单位」</div>';
+      stat.innerHTML = '等待输入名单…';
+      return;
+    }
+    var pageCount = Math.ceil(people.length / perPage);
+    var html = '';
+    for (var p = 0; p < pageCount; p++) {
+      var slice = people.slice(p * perPage, (p + 1) * perPage);
+      html += '<div class="page" style="grid-template-columns:repeat(' + cols + ',' + W + 'mm);' +
+              'grid-template-rows:repeat(' + rows + ',' + cardH + 'mm);gap:' + gap + 'mm">';
+      slice.forEach(function (pe) {
+        html += '<div class="card" style="width:' + W + 'mm;height:' + cardH + 'mm">' +
+          '<div class="face top"><div class="name">' + esc(pe.name) + '</div><div class="org">' + esc(pe.org) + '</div></div>' +
+          '<div class="face bottom"><div class="name">' + esc(pe.name) + '</div><div class="org">' + esc(pe.org) + '</div></div>' +
+          '</div>';
+      });
+      html += '</div><div class="page-num">第 ' + (p + 1) + ' 页 / 共 ' + pageCount + ' 页</div>';
+    }
+    pages.innerHTML = html;
+
+    /* --- 字号自适应：内容超宽时逐级缩小，防止溢出 --- */
+    pages.querySelectorAll('.card').forEach(function (card) {
+      ['name', 'org'].forEach(function (cls) {
+        var el = card.querySelector('.' + cls);
+        if (!el) return;
+        var fs = parseFloat(getComputedStyle(el).fontSize);
+        while (el.scrollWidth > el.clientWidth + 1 && fs > 9) {
+          fs -= 1;
+          el.style.fontSize = fs + 'px';
+        }
+      });
+    });
+
+    stat.innerHTML = '每页 <b>' + perPage + '</b> 个（' + cols + '列×' + rows + '行）· 共 <b>' + pageCount +
+      '</b> 页 · A4 竖版 210×297mm';
+  }
+
+  presetSel.addEventListener('change', function () {
+    var v = presetSel.value;
+    if (v !== 'custom' && PRESETS[v]) {
+      wIn.value = PRESETS[v].w;
+      hIn.value = PRESETS[v].h;
+    }
+    render();
+  });
+  [wIn, hIn].forEach(function (inp) {
+    inp.addEventListener('input', function () { presetSel.value = 'custom'; render(); });
+  });
+  [nameFs, orgFs, gapIn, list].forEach(function (inp) {
+    inp.addEventListener('input', render);
+  });
+  $('printBtn').addEventListener('click', function () { window.print(); });
+
+  render();
+})();
+</script>
+</body>
+</html>
