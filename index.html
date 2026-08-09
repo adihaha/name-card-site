@@ -187,7 +187,7 @@
   .card .face.top{ border-top:0.45mm dashed #b0b0be; }
   .card .face.bottom{ transform:rotate(180deg); }
   .card .line{ width:100%; white-space:nowrap; }
-  .card .mid-line{ position:absolute; left:0; right:0; flex:none; }
+  .card .mid-line{ flex:none; }
 
   /* ============ 打印：只输出姓名牌页 ============ */
   @media print{
@@ -857,10 +857,12 @@
     return alignCss(p[kind + 'Align'], css);
   }
 
-  /* 中间线：独立全宽元素，撑满卡片边界（不受 org 行 inset 影响） */
+  /* 中间线：文档流内元素，负 margin 抵消卡片左右内边距，撑满卡片边界 */
   function midLineStyle(p) {
     if (p.midShow === false) return 'display:none;';
     return 'border-top:' + posNum(p.midW, DEFAULTS.midW) + 'mm solid ' + (p.midColor || DEFAULTS.midColor) + ';' +
+           'margin-left:-' + nonNeg(p.cardPadL, DEFAULTS.cardPadL) + 'cm;' +
+           'margin-right:-' + nonNeg(p.cardPadR, DEFAULTS.cardPadR) + 'cm;' +
            'margin-top:' + nonNeg(p.orgBefore, DEFAULTS.orgBefore) + 'cm;';
   }
 
@@ -907,9 +909,9 @@
               'grid-template-rows:repeat(' + rows + ',' + cardH + 'cm);gap:' + gap + 'cm">';
       slice.forEach(function (pe) {
         html += '<div class="card' + (p.crop ? ' show-crop' : '') + '" style="width:' + W + 'cm;height:' + cardH + 'cm">' +
-          '<div class="face bottom" style="' + padCss + '"><div class="line" style="' + lineStyle(p, 'name') + '">' + esc(pe.name) + '</div>' +
+          '<div class="face bottom" style="' + padCss + '"><div class="line" style="' + lineStyle(p, 'org') + '">' + esc(pe.org) + '</div>' +
           '<div class="mid-line" style="' + midLineStyle(p) + '"></div>' +
-          '<div class="line" style="' + lineStyle(p, 'org') + '">' + esc(pe.org) + '</div></div>' +
+          '<div class="line" style="' + lineStyle(p, 'name') + '">' + esc(pe.name) + '</div></div>' +
           '<div class="face top" style="' + padCss + '"><div class="line" style="' + lineStyle(p, 'name') + '">' + esc(pe.name) + '</div>' +
           '<div class="mid-line" style="' + midLineStyle(p) + '"></div>' +
           '<div class="line" style="' + lineStyle(p, 'org') + '">' + esc(pe.org) + '</div></div>' +
