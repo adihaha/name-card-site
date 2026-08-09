@@ -179,6 +179,7 @@
   .card.show-crop{ border:0.3mm dashed #b0b0be; }
   .card .face{
     flex:1;
+    position:relative;
     display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
     text-align:center;
     overflow:hidden;
@@ -186,7 +187,7 @@
   .card .face.top{ border-top:0.45mm dashed #b0b0be; }
   .card .face.bottom{ transform:rotate(180deg); }
   .card .line{ width:100%; white-space:nowrap; }
-  .card .mid-line{ width:100%; flex:none; }
+  .card .mid-line{ position:absolute; left:0; right:0; flex:none; }
 
   /* ============ 打印：只输出姓名牌页 ============ */
   @media print{
