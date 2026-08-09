@@ -3,121 +3,140 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>姓名牌编辑器 · 实时预览 / A4 自动分页 / 打印</title>
+<title>姓名牌编辑器 · 左侧边栏 / Word 式段落布局 / 厘米单位 / 打印</title>
 <style>
-  /* ============ 基础 ============ */
-  :root{
-    --ink:#1a1a2e;
-    --gray:#7c7c8e;
-    --accent:#4a5b8f;
-    --accent-soft:#eef2fa;
-  }
+  :root{ --ink:#1a1a2e; --gray:#7c7c8e; --accent:#4a5b8f; --danger:#c0392b; }
   *{ box-sizing:border-box; margin:0; padding:0; }
   html,body{
     font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",-apple-system,sans-serif;
     color:var(--ink);
-  }
-  body{
-    background:#eef1f7;
-    padding:20px 24px 60px;
     -webkit-print-color-adjust:exact;
     print-color-adjust:exact;
   }
+  body{
+    background:
+      linear-gradient(rgba(70,90,150,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(70,90,150,.04) 1px, transparent 1px);
+    background-size:10mm 10mm;
+  }
+  @page{ size:A4 landscape; margin:10mm; }
 
-  /* ============ 打印设置 ============ */
-  @page{ size:A4; margin:10mm; }
+  .layout{
+    display:flex; align-items:flex-start; gap:14px;
+    max-width:1720px; margin:0 auto; padding:8px 14px 20px;
+  }
 
-  /* ============ 顶部使用说明（可折叠，打印隐藏） ============ */
+  /* ============ 左侧边栏 ============ */
+  .sidebar{
+    width:332px; flex:none;
+    position:sticky; top:8px; max-height:calc(100vh - 16px); overflow-y:auto;
+    background:#fff; border:1px solid #e2e4ec; border-radius:12px;
+    padding:14px 14px 16px; box-shadow:0 3px 14px rgba(20,30,60,.08);
+  }
+  .side-sec{
+    border:1px solid #e9ebf2; border-radius:10px;
+    padding:10px 12px 12px; margin-top:10px;
+  }
+  .sec-label{
+    font-size:11.5px; font-weight:700; color:var(--accent);
+    margin-bottom:8px; letter-spacing:.3px;
+  }
+  details.side-sec summary.sec-label{
+    cursor:pointer; list-style:none; user-select:none; margin-bottom:6px;
+  }
+  details.side-sec summary.sec-label::-webkit-details-marker{ display:none; }
+  details.side-sec summary.sec-label::before{ content:'▸ '; color:var(--accent); }
+  details.side-sec[open] summary.sec-label::before{ content:'▾ '; }
+
+  /* ============ 页面顶部说明横条 ============ */
+  .topbar{
+    max-width:1720px; margin:8px auto 0; padding:10px 16px 12px;
+    background:#fff; border:1px solid #e2e4ec; border-radius:12px;
+    box-shadow:0 3px 14px rgba(20,30,60,.08);
+  }
+  .topbar-head{ display:flex; align-items:baseline; gap:10px; margin-bottom:6px; }
+  .topbar-head h1{ font-size:18px; letter-spacing:.5px; }
+  .topbar-head span{ font-size:11.5px; color:var(--gray); }
+
   .tips{
-    max-width:1180px; margin:0 auto 14px;
-    border:1px solid var(--accent); border-left:4px solid var(--accent);
-    background:var(--accent-soft); border-radius:10px;
-    padding:12px 18px; font-size:13px; line-height:1.8; color:#33415c;
+    border:1px solid var(--accent); border-left:3mm solid var(--accent);
+    background:#f2f5fb; border-radius:8px;
+    padding:8px 10px; font-size:12px; line-height:1.7; color:#33415c;
+    margin-top:10px;
   }
-  .tips summary{
-    cursor:pointer; font-weight:700; color:var(--accent); font-size:14px; user-select:none;
-  }
-  .tips ol{ margin:8px 0 6px 20px; }
-  .tips .fold-tip{ margin-top:6px; font-size:13px; }
+  .tips summary{ cursor:pointer; font-weight:700; color:var(--accent); font-size:12.5px; user-select:none; }
+  .tips ol{ padding-left:1.2em; }
+  .tips li{ margin:2px 0; }
   .tips b{ color:var(--accent); }
 
-  /* ============ 控制面板 ============ */
-  .panel{
-    max-width:1180px; margin:0 auto 18px;
-    background:#fff; border:1px solid #e2e4ec; border-radius:12px;
-    padding:16px 20px 14px;
-    box-shadow:0 2px 8px rgba(20,30,60,.07);
+  .cfg-row{ display:flex; flex-wrap:wrap; gap:6px; }
+  .cfg-row select{
+    width:100%; padding:7px 9px; font-size:13px;
+    border:1px solid #cdd3e0; border-radius:8px;
+    color:var(--ink); outline:none; background:#fff;
   }
-  .panel-head{ display:flex; align-items:baseline; gap:10px; margin-bottom:14px; }
-  .panel-head h1{ font-size:19px; letter-spacing:.5px; }
-  .panel-head span{ font-size:12px; color:var(--gray); }
+  .cfg-row select:focus{ border-color:var(--accent); }
+  .btn{
+    flex:1; min-width:64px; padding:6px 8px; font-size:12px; font-weight:600; cursor:pointer;
+    background:#fff; color:var(--ink); border:1px solid #cdd3e0; border-radius:8px;
+    text-align:center;
+  }
+  .btn:hover{ border-color:var(--accent); color:var(--accent); }
+  .btn.danger:hover{ border-color:var(--danger); color:var(--danger); }
 
-  .p-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
-    gap:10px 16px;
-    margin-bottom:12px;
-  }
-  .field label{
-    display:block; font-size:12px; color:#5a6072; margin-bottom:5px; white-space:nowrap;
-  }
+  .field{ display:flex; flex-direction:column; gap:4px; margin-top:8px; }
+  .field label{ font-size:12px; color:#5a6072; margin-bottom:2px; white-space:nowrap; }
   .field label .val{ color:var(--accent); font-weight:700; }
+  .hint{ font-size:11px; color:#8a93a6; line-height:1.5; }
   .field select,
   .field input[type=number]{
-    width:100%; padding:7px 9px; font-size:13px;
-    border:1px solid #cfd4e0; border-radius:7px; background:#fbfcfe;
-    color:var(--ink); outline:none;
+    width:100%; padding:6px 8px; font-size:13px;
+    border:1px solid #cdd3e0; border-radius:8px;
+    color:var(--ink); outline:none; background:#fff;
   }
   .field select:focus, .field input[type=number]:focus{ border-color:var(--accent); }
-  .field input[type=range]{ width:100%; accent-color:var(--accent); margin-top:8px; }
-  /* 滑块 + 数字输入组合 */
-  .fs-row{ display:flex; align-items:center; gap:8px; margin-top:8px; }
-  .fs-row input[type=range]{ flex:1; margin-top:0; min-width:0; }
-  .fs-row input[type=number]{ width:64px; flex:none; }
-  /* 对齐方式按钮组 */
-  .align-row{ display:flex; gap:6px; margin-top:8px; }
-  .align-row button{
-    flex:1; padding:7px 4px; font-size:12.5px; cursor:pointer;
-    border:1px solid #cfd4e0; border-radius:7px; background:#fbfcfe; color:var(--ink);
+  .field input[type=range]{ width:100%; accent-color:var(--accent); }
+  .field input[type=color]{
+    width:100%; height:30px; padding:2px; border:1px solid #cdd3e0;
+    border-radius:8px; background:#fff; cursor:pointer;
   }
-  .align-row button.active{
-    background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700;
+  .size-row{ display:flex; align-items:center; gap:8px; }
+  .size-row input[type=range]{ flex:1; min-width:0; }
+  .size-row input[type=number]{ width:72px; flex:none; }
+  .swatches{ display:flex; flex-wrap:wrap; gap:6px; }
+  .swatch{
+    width:24px; height:24px; border-radius:7px; cursor:pointer;
+    border:2px solid #fff; box-shadow:0 0 0 1px #cdd3e0; padding:0;
   }
-  /* 加粗开关 */
-  .check-row{
-    display:flex; align-items:center; gap:7px; margin-top:9px;
-    font-size:13px; color:#5a6072; cursor:pointer; user-select:none;
-  }
-  .check-row input{ accent-color:var(--accent); width:16px; height:16px; cursor:pointer; }
+  .swatch:hover{ box-shadow:0 0 0 2px var(--accent); }
 
-  .p-row{ display:flex; gap:14px; align-items:stretch; }
-  .p-row textarea{
-    flex:1; min-height:118px; resize:vertical;
-    padding:10px 12px; font-size:13.5px; line-height:1.7;
-    border:1px solid #cfd4e0; border-radius:8px; background:#fbfcfe;
+  .list-area textarea{
+    width:100%; min-height:96px; resize:vertical;
+    padding:8px 10px; font-size:13px; line-height:1.65;
+    border:1px solid #cdd3e0; border-radius:8px;
     font-family:inherit; color:var(--ink); outline:none;
   }
-  .p-row textarea:focus{ border-color:var(--accent); }
-  .p-side{ display:flex; flex-direction:column; justify-content:space-between; gap:10px; width:220px; }
+  .list-area textarea:focus{ border-color:var(--accent); }
   .stat{
-    font-size:12.5px; color:#44506b; background:#f4f6fb;
-    border:1px dashed #c3cadb; border-radius:8px; padding:10px 12px; line-height:1.6;
+    margin-top:8px; font-size:12px; color:#44506b; background:#f4f6fb;
+    border-radius:8px; padding:7px 9px; line-height:1.6;
   }
   .stat b{ color:var(--accent); }
-  .print-btn{
-    padding:11px 14px; font-size:14px; font-weight:700; cursor:pointer;
-    color:#fff; background:var(--accent); border:none; border-radius:8px;
-    transition:filter .15s;
-  }
-  .print-btn:hover{ filter:brightness(1.08); }
 
-  /* ============ 预览区 ============ */
+  .print-btn{
+    width:100%; margin-top:10px; padding:11px 14px; font-size:14px; font-weight:700; cursor:pointer;
+    color:#fff; background:var(--accent); border:none; border-radius:8px;
+  }
+  .print-btn:hover{ opacity:.9; }
+
+  /* ============ 右侧预览区 ============ */
+  .preview{ flex:1; min-width:0; }
   .pages{
     display:flex; flex-direction:column; align-items:center;
     gap:10mm; padding:2mm 0 10mm;
   }
   .page{
-    width:210mm; height:297mm;
+    width:297mm; height:210mm;
     background:#fff;
     border:1px solid #d6dae4;
     box-shadow:0 3px 14px rgba(20,30,60,.10);
@@ -125,19 +144,17 @@
     display:grid;
     place-content:center;
   }
-  .page-num{
-    font-size:12px; color:#8a93a6; margin-top:-4mm; letter-spacing:1px;
-  }
+  .page-num{ font-size:12px; color:#8a93a6; margin-top:-4mm; letter-spacing:1px; }
   .empty{
-    max-width:1180px; margin:40px auto; text-align:center;
+    max-width:1000px; margin:40px auto; text-align:center;
     color:#8a93a6; font-size:14px; background:#fff;
     border:1px dashed #cfd4e0; border-radius:12px; padding:60px 20px;
   }
 
-  /* ============ 姓名牌（展开矩形，中间虚线对折成倒 V 帐篷） ============ */
+  /* ============ 姓名牌（展开矩形，中间虚线对折成倒 V 帐篷，无外边框） ============ */
   .card{
     background:#fff;
-    border:0.2mm solid #e2e2ea;
+    border:none;
     border-radius:1.2mm;
     display:flex; flex-direction:column;
     box-shadow:0 1px 3px rgba(0,0,0,.14);
@@ -147,27 +164,21 @@
   .card .face{
     flex:1;
     display:flex; flex-direction:column; align-items:center; justify-content:center;
-    text-align:center; padding:1.2mm 2mm; gap:1mm;
+    text-align:center;
     overflow:hidden;
   }
-  /* 上半显示面：名字正向；底部虚线 = 对折线（打印时显示） */
   .card .face.top{ border-bottom:0.45mm dashed #b0b0be; }
-  /* 下半显示面：预旋转 180°，沿虚线对折后名字朝上为正 */
   .card .face.bottom{ transform:rotate(180deg); }
-  .card .name{
-    font-weight:700; letter-spacing:1px; color:#111; line-height:1.2; white-space:nowrap;
-  }
-  .card .org{
-    color:#6b6b7b; line-height:1.25; white-space:nowrap;
-  }
+  .card .line{ width:100%; white-space:nowrap; }
 
   /* ============ 打印：只输出姓名牌页 ============ */
   @media print{
-    body{ background:#fff; padding:0; }
-    .tips, .panel, .page-num, .empty{ display:none !important; }
+    body{ background:#fff; }
+    .topbar, .sidebar, .page-num, .empty{ display:none !important; }
+    .layout{ display:block; padding:0; }
     .pages{ display:block; padding:0; gap:0; }
     .page{
-      width:190mm; height:277mm; /* = A4 210×297 - 四周 10mm 边距 */
+      width:277mm; height:190mm; /* = A4 横版 297×210 - 四周 10mm 边距 */
       padding:0; border:none; box-shadow:none;
       margin:0;
       page-break-after:always; break-after:page;
@@ -179,82 +190,25 @@
 </head>
 <body>
 
+<div class="topbar">
+  <div class="topbar-head"><h1>姓名牌编辑器</h1><span>Word 式段落布局 · 厘米单位 · 一键打印</span></div>
   <details class="tips" open>
-    <summary>📖 使用说明（点击折叠）</summary>
+    <summary>📖 使用说明</summary>
     <ol>
-      <li>在下方「名单」框输入：每行一个「姓名 单位」（空格或 Tab 分隔），只写姓名也可以。</li>
-      <li>选择尺寸预设（大 / 中 / 小）或输入自定义宽高；姓名、单位字号可拖动滑块或直接输入数字（1–200px），并可分别设置对齐方式与加粗。</li>
-      <li>预览实时更新：每个浅色边框框 = 一页 A4（210×297mm），超出自动续排并显示页码。</li>
-      <li>打印：点击「打印」按钮或 Ctrl/Cmd+P。打印时控制面板与说明自动隐藏，只输出姓名牌。</li>
+      <li>名单每行一个「姓名 单位」，空格或 Tab 分隔，可只写姓名。</li>
+      <li>「样式对象」选姓名或单位，分别设置字体、字号、颜色、字重、对齐、行高、段前/段后；行高为该行占用的固定高度，建议不小于字号的 1.4 倍。</li>
+      <li>滑块仅作辅助，数字框可填任意值（单位 cm），以预览效果为准。</li>
+      <li>「样式配置」可保存多套配置，切换即整批换样式；名单独立保存，自动存在本机浏览器。</li>
     </ol>
-    <p class="fold-tip"><b>折叠方法：</b>沿每个姓名牌中间的<b>虚线</b>对折成倒 V 帐篷形，放置桌面后<b>上下两面名字都朝上</b>（下半名字已预先旋转 180°）。</p>
+    <p class="fold-tip"><b>折叠：</b>沿虚线对折成倒 V 帐篷形，上下两面名字都朝上（下半已旋转 180°）。</p>
   </details>
+</div>
 
-  <div class="panel">
-    <div class="panel-head"><h1>姓名牌编辑器</h1><span>实时预览 · A4 自动分页 · 一键打印</span></div>
-    <div class="p-grid">
-      <div class="field">
-        <label>尺寸预设</label>
-        <select id="preset">
-          <option value="lg">大号 · 128×42mm（会议主桌牌）</option>
-          <option value="md" selected>中号 · 95×34mm（普通桌牌）</option>
-          <option value="sm">小号 · 62×22mm（座位卡）</option>
-          <option value="custom">自定义…</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>宽度 (mm)</label>
-        <input id="w" type="number" min="40" max="200" step="1" value="95">
-      </div>
-      <div class="field">
-        <label>高度 (mm)</label>
-        <input id="h" type="number" min="10" max="138" step="1" value="34">
-      </div>
-      <div class="field">
-        <label>姓名字号 <span id="nameVal" class="val">28px</span></label>
-        <div class="fs-row">
-          <input id="nameFs" type="range" min="16" max="200" step="1" value="28">
-          <input id="nameFsNum" type="number" min="1" max="300" step="1" value="28">
-        </div>
-      </div>
-      <div class="field">
-        <label>名字对齐</label>
-        <div class="align-row" id="nameAlignRow">
-          <button type="button" data-align="left">居左</button>
-          <button type="button" data-align="center" class="active">居中</button>
-          <button type="button" data-align="justify">两端</button>
-        </div>
-      </div>
-      <div class="field">
-        <label>名字加粗</label>
-        <label class="check-row"><input id="nameBold" type="checkbox" checked> 粗体显示</label>
-      </div>
-      <div class="field">
-        <label>单位字号 <span id="orgVal" class="val">14px</span></label>
-        <div class="fs-row">
-          <input id="orgFs" type="range" min="10" max="200" step="1" value="14">
-          <input id="orgFsNum" type="number" min="1" max="300" step="1" value="14">
-        </div>
-      </div>
-      <div class="field">
-        <label>单位对齐</label>
-        <div class="align-row" id="orgAlignRow">
-          <button type="button" data-align="left">居左</button>
-          <button type="button" data-align="center" class="active">居中</button>
-          <button type="button" data-align="justify">两端</button>
-        </div>
-      </div>
-      <div class="field">
-        <label>单位加粗</label>
-        <label class="check-row"><input id="orgBold" type="checkbox"> 粗体显示</label>
-      </div>
-      <div class="field">
-        <label>牌间距 <span id="gapVal" class="val">5mm</span></label>
-        <input id="gap" type="range" min="2" max="12" step="1" value="5">
-      </div>
-    </div>
-    <div class="p-row">
-      <textarea id="list" rows="6" placeholder="每行一个：姓名 单位（空格分隔，可只写姓名）">张伟 珠海华发集团
+<div class="layout">
+  <aside class="sidebar">
+    <div class="side-sec list-area">
+      <div class="sec-label">名单（每行：姓名 单位）</div>
+      <textarea id="list" rows="7" placeholder="每行一个：姓名 单位（空格分隔，可只写姓名）">张伟 珠海华发集团
 李娜 腾讯科技
 王强 格力电器
 陈静 小米科技
@@ -264,36 +218,523 @@
 周杰 南方电网
 吴芳 珠海横琴新区管委会
 郑凯 格力智能装备</textarea>
-      <div class="p-side">
-        <div id="stat" class="stat">…</div>
-        <button id="printBtn" class="print-btn" type="button">🖨 打印 / 导出 PDF</button>
+      <div id="stat" class="stat">…</div>
+    </div>
+
+    <div class="side-sec">
+      <div class="sec-label">样式配置</div>
+      <div class="cfg-row">
+        <select id="profile" title="选择配置，整批切换样式与尺寸"></select>
+      </div>
+      <div class="cfg-row" style="margin-top:6px;">
+        <button id="newBtn" class="btn" type="button" title="基于当前设置新建配置">＋ 新建</button>
+        <button id="dupBtn" class="btn" type="button" title="复制当前配置">⧉ 复制</button>
+        <button id="renBtn" class="btn" type="button" title="重命名当前配置">✎ 重命名</button>
+        <button id="delBtn" class="btn danger" type="button" title="删除当前配置">🗑 删除</button>
+      </div>
+      <div class="cfg-row" style="margin-top:6px;">
+        <button id="exportBtn" class="btn" type="button" title="导出全部配置与名单为 JSON">⬇ 导出</button>
+        <button id="importBtn" class="btn" type="button" title="从 JSON 文件恢复">⬆ 导入</button>
+        <button id="resetBtn" class="btn danger" type="button" title="清空本地数据，恢复默认">↺ 重置</button>
+        <input id="importFile" type="file" accept=".json,application/json" hidden>
       </div>
     </div>
-  </div>
 
-  <div class="pages" id="pages"></div>
+    <details class="side-sec" open>
+      <summary class="sec-label">卡片尺寸（cm）</summary>
+      <div class="field" style="margin-top:0;">
+        <label>宽度 <span id="wVal" class="val">9.5cm</span></label>
+        <div class="size-row">
+          <input id="wRange" type="range" min="1" max="30" step="1">
+          <input id="wNum" type="number" step="0.1">
+        </div>
+      </div>
+      <div class="field">
+        <label>高度 <span id="hVal" class="val">3.4cm</span></label>
+        <div class="size-row">
+          <input id="hRange" type="range" min="1" max="30" step="1">
+          <input id="hNum" type="number" step="0.1">
+        </div>
+      </div>
+      <div class="field">
+        <label>牌间距 <span id="gapVal" class="val">0.5cm</span></label>
+        <div class="size-row">
+          <input id="gapRange" type="range" min="0" max="3" step="0.05">
+          <input id="gapNum" type="number" step="0.05">
+        </div>
+      </div>
+    </details>
+
+    <details class="side-sec" open>
+      <summary class="sec-label">卡片内边距（内容距边缘 cm）</summary>
+      <div class="field" style="margin-top:0;">
+        <label>上 <span id="padTVal" class="val">0.2cm</span></label>
+        <div class="size-row">
+          <input id="padTRange" type="range" min="0" max="3" step="0.05">
+          <input id="padTNum" type="number" step="0.05">
+        </div>
+      </div>
+      <div class="field">
+        <label>下 <span id="padBVal" class="val">0.2cm</span></label>
+        <div class="size-row">
+          <input id="padBRange" type="range" min="0" max="3" step="0.05">
+          <input id="padBNum" type="number" step="0.05">
+        </div>
+      </div>
+      <div class="field">
+        <label>左 <span id="padLVal" class="val">0.2cm</span></label>
+        <div class="size-row">
+          <input id="padLRange" type="range" min="0" max="3" step="0.05">
+          <input id="padLNum" type="number" step="0.05">
+        </div>
+      </div>
+      <div class="field">
+        <label>右 <span id="padRVal" class="val">0.2cm</span></label>
+        <div class="size-row">
+          <input id="padRRange" type="range" min="0" max="3" step="0.05">
+          <input id="padRNum" type="number" step="0.05">
+        </div>
+      </div>
+    </details>
+
+    <details class="side-sec">
+      <summary class="sec-label">样式调整（姓名 / 单位）</summary>
+      <div class="field" style="margin-top:0;">
+        <label>样式对象</label>
+        <select id="objSel">
+          <option value="name">姓名</option>
+          <option value="org">单位</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>字体</label>
+        <select id="fontSel"></select>
+      </div>
+      <div class="field">
+        <label>字号 <span id="sizeVal" class="val">1cm</span></label>
+        <div class="size-row">
+          <input id="sizeRange" type="range" min="0.1" max="5" step="0.1">
+          <input id="sizeNum" type="number" step="0.1">
+        </div>
+      </div>
+      <div class="field">
+        <label>颜色</label>
+        <div class="swatches" id="colorSw"></div>
+        <input id="colorInp" type="color">
+      </div>
+      <div class="field">
+        <label>字重</label>
+        <select id="weightSel">
+          <option value="400">常规</option>
+          <option value="500">中等</option>
+          <option value="700">粗体</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>对齐方式</label>
+        <select id="alignSel">
+          <option value="left">左对齐</option>
+          <option value="center">居中</option>
+          <option value="right">右对齐</option>
+          <option value="distribute" selected>分散对齐</option>
+        </select>
+        <div class="hint">分散对齐：单行文字两端顶满整行，字距自动拉开。</div>
+      </div>
+      <div class="field">
+        <label>行高（固定值）<span id="lineVal" class="val">7cm</span></label>
+        <div class="size-row">
+          <input id="lineRange" type="range" min="0.1" max="5" step="0.1">
+          <input id="lineNum" type="number" step="0.1">
+        </div>
+        <div class="hint">该行占用的固定高度（Word 固定值行距）；小于字号×1.4 会与相邻行重叠。</div>
+      </div>
+      <div class="field">
+        <label>段前（上方空白）<span id="beforeVal" class="val">0cm</span></label>
+        <div class="size-row">
+          <input id="beforeRange" type="range" min="0" max="2" step="0.05">
+          <input id="beforeNum" type="number" step="0.05">
+        </div>
+      </div>
+      <div class="field">
+        <label>段后（下方空白）<span id="afterVal" class="val">0.2cm</span></label>
+        <div class="size-row">
+          <input id="afterRange" type="range" min="0" max="2" step="0.05">
+          <input id="afterNum" type="number" step="0.05">
+        </div>
+        <div class="hint">姓名与单位的间距 = 姓名段后 + 单位段前。</div>
+      </div>
+    </details>
+
+    <button id="printBtn" class="print-btn" type="button">🖨 打印 / 导出 PDF</button>
+  </aside>
+
+  <main class="preview">
+    <div class="pages" id="pages"></div>
+  </main>
+</div>
 
 <script>
 (function () {
   function $(id) { return document.getElementById(id); }
-  var PRESETS = {
-    lg: { w: 128, h: 42, label: '大号' },
-    md: { w: 95,  h: 34, label: '中号' },
-    sm: { w: 62,  h: 22, label: '小号' }
+  var KEY = 'nameCardEditor.v5';
+  var OLD_KEYS = ['nameCardEditor.v4', 'nameCardEditor.v3', 'nameCardEditor.v2', 'nameCardEditor.v1', 'nameCardEditor'];
+  var CW = 27.7, CH = 19; /* A4 横版 297×210mm，@page 边距 10mm → 内容区 27.7cm × 19cm */
+
+  var FONT_LIST = [
+    { label: '苹方 PingFang SC', value: 'PingFang SC' },
+    { label: '冬青黑体 Hiragino Sans GB', value: 'Hiragino Sans GB' },
+    { label: '宋体 Songti SC', value: 'Songti SC' },
+    { label: '楷体 Kaiti SC', value: 'Kaiti SC' },
+    { label: '黑体 Heiti SC', value: 'Heiti SC' },
+    { label: '华文宋体 STSong', value: 'STSong' },
+    { label: '华文楷体 STKaiti', value: 'STKaiti' },
+    { label: '华文黑体 STHeiti', value: 'STHeiti' },
+    { label: '华文仿宋 STFangsong', value: 'STFangsong' },
+    { label: '微软雅黑 Microsoft YaHei', value: 'Microsoft YaHei' },
+    { label: '宋体 SimSun', value: 'SimSun' },
+    { label: '黑体 SimHei', value: 'SimHei' },
+    { label: '楷体 KaiTi', value: 'KaiTi' },
+    { label: '仿宋 FangSong', value: 'FangSong' },
+    { label: '等线 DengXian', value: 'DengXian' },
+    { label: '思源黑体 Noto Sans CJK SC', value: 'Noto Sans CJK SC' },
+    { label: '思源宋体 Noto Serif CJK SC', value: 'Noto Serif CJK SC' },
+    { label: 'Arial', value: 'Arial' },
+    { label: 'Helvetica', value: 'Helvetica' },
+    { label: 'Times New Roman', value: 'Times New Roman' },
+    { label: 'Georgia', value: 'Georgia' },
+    { label: 'Verdana', value: 'Verdana' },
+    { label: 'Courier New', value: 'Courier New' },
+    { label: 'Trebuchet MS', value: 'Trebuchet MS' }
+  ];
+
+  var PALETTE = ['#111111', '#1a1a2e', '#333333', '#6b6b7b', '#c0392b', '#e67e22', '#f1c40f', '#2ecc71', '#2980b9', '#8e44ad'];
+
+  var DEFAULT_LIST = '张伟 珠海华发集团\n李娜 腾讯科技\n王强 格力电器\n陈静 小米科技\n刘洋 珠海市政府\n赵敏 中山大学\n孙丽 华为技术\n周杰 南方电网\n吴芳 珠海横琴新区管委会\n郑凯 格力智能装备';
+
+  var DEFAULTS = {
+    w: 20, h: 10, gap: 0.5,
+    cardPadT: 0.2, cardPadB: 0.2, cardPadL: 0.2, cardPadR: 0.2,
+    nameFont: '', nameSize: 5, nameColor: '#111111', nameWeight: '700',
+    nameAlign: 'distribute', nameLine: 7, nameBefore: 0, nameAfter: 0.2,
+    orgFont: '', orgSize: 0.5, orgColor: '#111111', orgWeight: '400',
+    orgAlign: 'center', orgLine: 0.7, orgBefore: 0, orgAfter: 0
   };
-  /* A4 竖版 210×297mm，@page 边距 10mm → 内容区 190×277mm */
-  var CW = 190, CH = 277;
 
-  var presetSel = $('preset'), wIn = $('w'), hIn = $('h'),
-      nameFs = $('nameFs'), nameFsNum = $('nameFsNum'),
-      orgFs = $('orgFs'), orgFsNum = $('orgFsNum'),
-      nameBold = $('nameBold'), orgBold = $('orgBold'),
-      nameAlignRow = $('nameAlignRow'), orgAlignRow = $('orgAlignRow'),
-      gapIn = $('gap'), list = $('list'), pages = $('pages'), stat = $('stat'),
-      nameVal = $('nameVal'), orgVal = $('orgVal'), gapVal = $('gapVal');
+  /* ---- 元素 ---- */
+  var profileSel = $('profile'),
+      newBtn = $('newBtn'), dupBtn = $('dupBtn'), renBtn = $('renBtn'), delBtn = $('delBtn'),
+      exportBtn = $('exportBtn'), importBtn = $('importBtn'), importFile = $('importFile'), resetBtn = $('resetBtn'),
+      objSel = $('objSel'), fontSel = $('fontSel'),
+      sizeRange = $('sizeRange'), sizeNum = $('sizeNum'), sizeVal = $('sizeVal'),
+      colorSw = $('colorSw'), colorInp = $('colorInp'), weightSel = $('weightSel'), alignSel = $('alignSel'),
+      lineRange = $('lineRange'), lineNum = $('lineNum'), lineVal = $('lineVal'),
+      beforeRange = $('beforeRange'), beforeNum = $('beforeNum'), beforeVal = $('beforeVal'),
+      afterRange = $('afterRange'), afterNum = $('afterNum'), afterVal = $('afterVal'),
+      wRange = $('wRange'), wNum = $('wNum'), wVal = $('wVal'),
+      hRange = $('hRange'), hNum = $('hNum'), hVal = $('hVal'),
+      gapRange = $('gapRange'), gapNum = $('gapNum'), gapVal = $('gapVal'),
+      padTRange = $('padTRange'), padTNum = $('padTNum'), padTVal = $('padTVal'),
+      padBRange = $('padBRange'), padBNum = $('padBNum'), padBVal = $('padBVal'),
+      padLRange = $('padLRange'), padLNum = $('padLNum'), padLVal = $('padLVal'),
+      padRRange = $('padRRange'), padRNum = $('padRNum'), padRVal = $('padRVal'),
+      list = $('list'), pages = $('pages'), stat = $('stat'), printBtn = $('printBtn');
 
-  var state = { nameAlign: 'center', orgAlign: 'center' };
+  var profiles = [], activeId = null, target = 'name';
 
+  function uid() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  }
+
+  function current() {
+    for (var i = 0; i < profiles.length; i++) {
+      if (profiles[i].id === activeId) return profiles[i];
+    }
+    return profiles[0];
+  }
+
+  function r2(n) { return Math.round(n * 100) / 100; }
+  function posNum(v, def) {
+    var n = parseFloat(v);
+    return (!isNaN(n) && n > 0) ? n : def;
+  }
+  function nonNeg(v, def) {
+    var n = parseFloat(v);
+    return (!isNaN(n) && n >= 0) ? n : def;
+  }
+
+  function defaultProfile() {
+    var d = {};
+    Object.keys(DEFAULTS).forEach(function (k) { d[k] = DEFAULTS[k]; });
+    d.id = uid();
+    d.name = '标准桌牌';
+    return d;
+  }
+
+  function sanitizeProfile(p) {
+    var d = defaultProfile();
+    var out = {};
+    Object.keys(DEFAULTS).forEach(function (k) {
+      out[k] = (p && p[k] !== undefined && p[k] !== null) ? p[k] : d[k];
+    });
+    out.id = (p && p.id) || uid();
+    out.name = (p && p.name) || '未命名配置';
+    out.w = posNum(out.w, DEFAULTS.w);
+    out.h = posNum(out.h, DEFAULTS.h);
+    out.gap = nonNeg(out.gap, DEFAULTS.gap);
+    ['nameSize', 'orgSize', 'nameLine', 'orgLine'].forEach(function (k) {
+      out[k] = posNum(out[k], DEFAULTS[k]);
+    });
+    ['nameBefore', 'nameAfter', 'orgBefore', 'orgAfter',
+     'cardPadT', 'cardPadB', 'cardPadL', 'cardPadR'].forEach(function (k) {
+      out[k] = nonNeg(out[k], DEFAULTS[k]);
+    });
+    ['nameWeight', 'orgWeight'].forEach(function (k) {
+      if (['400', '500', '700'].indexOf(String(out[k])) === -1) out[k] = DEFAULTS[k];
+    });
+    ['nameColor', 'orgColor'].forEach(function (k) {
+      if (!/^#[0-9a-fA-F]{6}$/.test(out[k])) out[k] = DEFAULTS[k];
+    });
+    ['nameAlign', 'orgAlign'].forEach(function (k) {
+      if (['left', 'center', 'right', 'distribute'].indexOf(out[k]) === -1) out[k] = DEFAULTS[k];
+    });
+    return out;
+  }
+
+  /* v1 → v3：mm÷10、px÷28.3 得到 cm，丢弃 preset/spacing */
+  function migrateV1(p) {
+    return applyNewDefaults(sanitizeProfile({
+      id: p.id, name: p.name,
+      w: r2(p.w / 10), h: r2(p.h / 10), gap: r2(p.gap / 10),
+      nameFont: p.nameFont, nameSize: r2(p.nameSize / 28.3), nameColor: p.nameColor, nameWeight: p.nameWeight,
+      orgFont: p.orgFont, orgSize: r2(p.orgSize / 28.3), orgColor: p.orgColor, orgWeight: p.orgWeight
+    }));
+  }
+
+  /* v2 → v3：补齐新字段；「标准桌牌」立即应用新默认值 */
+  function migrateV2(p) {
+    return applyNewDefaults(sanitizeProfile(p));
+  }
+
+  /* v3 → v4：补齐内边距字段；「标准桌牌」单位颜色与姓名一致 */
+  function migrateV3(p) {
+    return applyNewDefaults(sanitizeProfile(p));
+  }
+
+  /* v4 → v5：去除 inset/justify 对齐；修复行高小于字号 1.4 倍的旧配置 */
+  function migrateV4(p) {
+    return applyNewDefaults(sanitizeProfile(p));
+  }
+
+  function applyNewDefaults(p) {
+    if (p.name === '标准桌牌') {
+      p.w = DEFAULTS.w;
+      p.h = DEFAULTS.h;
+      p.nameSize = DEFAULTS.nameSize;
+      p.nameAlign = DEFAULTS.nameAlign;
+      p.orgColor = p.nameColor;
+    }
+    ['name', 'org'].forEach(function (k) {
+      if (p[k + 'Line'] < p[k + 'Size'] * 1.4) {
+        p[k + 'Line'] = Math.round(p[k + 'Size'] * 1.4 * 100) / 100;
+      }
+    });
+    return p;
+  }
+
+  /* ---- 字体检测 ---- */
+  function fontAvailable(font) {
+    try {
+      var c = document.createElement('canvas'), ctx = c.getContext('2d');
+      var test = 'mmmmmmmmmmlli';
+      ctx.font = '72px serif';
+      var base = ctx.measureText(test).width;
+      ctx.font = '72px "' + font + '", serif';
+      return ctx.measureText(test).width !== base;
+    } catch (e) { return true; }
+  }
+
+  function fillFontSelects() {
+    var cur = fontSel.value;
+    fontSel.innerHTML = '<option value="">系统默认</option>';
+    FONT_LIST.forEach(function (f) {
+      if (!fontAvailable(f.value)) return;
+      var o = document.createElement('option');
+      o.value = f.value;
+      o.textContent = f.label;
+      fontSel.appendChild(o);
+    });
+    fontSel.value = cur;
+  }
+
+  /* ---- 色板 ---- */
+  function buildSwatches(cont, colorInpEl) {
+    cont.innerHTML = '';
+    PALETTE.forEach(function (c) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'swatch';
+      b.style.background = c;
+      b.title = c;
+      b.addEventListener('click', function () {
+        colorInpEl.value = c;
+        onUIInput();
+      });
+      cont.appendChild(b);
+    });
+  }
+
+  /* ---- 保存 / 加载 ---- */
+  function save() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify({
+        version: 5,
+        profiles: profiles,
+        activeId: activeId,
+        list: list.value
+      }));
+    } catch (e) { /* localStorage 不可用时静默 */ }
+  }
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      for (var i = 0; !raw && i < OLD_KEYS.length; i++) raw = localStorage.getItem(OLD_KEYS[i]);
+      if (raw) {
+        var data = JSON.parse(raw);
+        if (data && Array.isArray(data.profiles) && data.profiles.length) {
+          if (data.version === 1) {
+            profiles = data.profiles.map(migrateV1);
+          } else if (data.version === 2) {
+            profiles = data.profiles.map(migrateV2);
+          } else if (data.version === 3) {
+            profiles = data.profiles.map(migrateV3);
+          } else if (data.version === 4) {
+            profiles = data.profiles.map(migrateV4);
+          } else if (data.version === 5) {
+            profiles = data.profiles.map(sanitizeProfile);
+          } else {
+            loadDefaults();
+            return;
+          }
+          activeId = data.activeId;
+          if (!profiles.some(function (p) { return p.id === activeId; })) activeId = profiles[0].id;
+          if (typeof data.list === 'string') list.value = data.list;
+          save(); /* 写回：迁移持久化到 v4 key */
+          OLD_KEYS.forEach(function (k) { try { localStorage.removeItem(k); } catch (e2) {} });
+          return;
+        }
+      }
+    } catch (e) { /* 损坏数据 → 使用默认 */ }
+    loadDefaults();
+  }
+
+  function loadDefaults() {
+    profiles = [defaultProfile()];
+    activeId = profiles[0].id;
+    list.value = DEFAULT_LIST;
+  }
+
+  /* ---- 配置下拉 ---- */
+  function refreshProfileSelect() {
+    profileSel.innerHTML = '';
+    profiles.forEach(function (p) {
+      var o = document.createElement('option');
+      o.value = p.id;
+      o.textContent = p.name;
+      profileSel.appendChild(o);
+    });
+    profileSel.value = activeId;
+  }
+
+  /* ---- 面板 <-> 当前配置 ---- */
+  function applyTargetToUI() {
+    var p = current(), k = target;
+    fontSel.value = p[k + 'Font'];
+    sizeRange.value = p[k + 'Size'];
+    sizeNum.value = p[k + 'Size'];
+    colorInp.value = p[k + 'Color'];
+    weightSel.value = p[k + 'Weight'];
+    alignSel.value = p[k + 'Align'];
+    lineRange.value = p[k + 'Line'];
+    lineNum.value = p[k + 'Line'];
+    beforeRange.value = p[k + 'Before'];
+    beforeNum.value = p[k + 'Before'];
+    afterRange.value = p[k + 'After'];
+    afterNum.value = p[k + 'After'];
+  }
+
+  function applyProfileToUI() {
+    var p = current();
+    wRange.value = p.w; wNum.value = p.w;
+    hRange.value = p.h; hNum.value = p.h;
+    gapRange.value = p.gap; gapNum.value = p.gap;
+    padTRange.value = p.cardPadT; padTNum.value = p.cardPadT;
+    padBRange.value = p.cardPadB; padBNum.value = p.cardPadB;
+    padLRange.value = p.cardPadL; padLNum.value = p.cardPadL;
+    padRRange.value = p.cardPadR; padRNum.value = p.cardPadR;
+    applyTargetToUI();
+  }
+
+  function updateTarget() {
+    var p = current(), k = target;
+    p[k + 'Font'] = fontSel.value;
+    p[k + 'Size'] = posNum(sizeNum.value, DEFAULTS[k + 'Size']);
+    p[k + 'Color'] = colorInp.value;
+    p[k + 'Weight'] = weightSel.value;
+    p[k + 'Align'] = alignSel.value;
+    p[k + 'Line'] = posNum(lineNum.value, DEFAULTS[k + 'Line']);
+    p[k + 'Before'] = nonNeg(beforeNum.value, DEFAULTS[k + 'Before']);
+    p[k + 'After'] = nonNeg(afterNum.value, DEFAULTS[k + 'After']);
+    p.w = posNum(wNum.value, DEFAULTS.w);
+    p.h = posNum(hNum.value, DEFAULTS.h);
+    p.gap = nonNeg(gapNum.value, DEFAULTS.gap);
+    p.cardPadT = nonNeg(padTNum.value, DEFAULTS.cardPadT);
+    p.cardPadB = nonNeg(padBNum.value, DEFAULTS.cardPadB);
+    p.cardPadL = nonNeg(padLNum.value, DEFAULTS.cardPadL);
+    p.cardPadR = nonNeg(padRNum.value, DEFAULTS.cardPadR);
+  }
+
+  function onUIInput(e) {
+    var el = e && e.target;
+    if (el === sizeRange) sizeNum.value = sizeRange.value;
+    if (el === lineRange) lineNum.value = lineRange.value;
+    if (el === beforeRange) beforeNum.value = beforeRange.value;
+    if (el === afterRange) afterNum.value = afterRange.value;
+    if (el === wRange) wNum.value = wRange.value;
+    if (el === hRange) hNum.value = hRange.value;
+    if (el === gapRange) gapNum.value = gapRange.value;
+    if (el === padTRange) padTNum.value = padTRange.value;
+    if (el === padBRange) padBNum.value = padBRange.value;
+    if (el === padLRange) padLNum.value = padLRange.value;
+    if (el === padRRange) padRNum.value = padRRange.value;
+    syncSliders();
+    updateTarget();
+    save();
+    render();
+  }
+
+  /* 滑块只做辅助：拖到某值即填入数字；数字可超滑块范围，滑块停在边界 */
+  function syncPair(r, n, min, max) {
+    var v = parseFloat(n.value);
+    if (isNaN(v)) { r.value = min; return; }
+    r.value = Math.min(max, Math.max(min, v));
+  }
+
+  function syncSliders() {
+    syncPair(sizeRange, sizeNum, 0.1, 5);
+    syncPair(lineRange, lineNum, 0.1, 5);
+    syncPair(beforeRange, beforeNum, 0, 2);
+    syncPair(afterRange, afterNum, 0, 2);
+    syncPair(wRange, wNum, 1, 30);
+    syncPair(hRange, hNum, 1, 30);
+    syncPair(gapRange, gapNum, 0, 3);
+    syncPair(padTRange, padTNum, 0, 3);
+    syncPair(padBRange, padBNum, 0, 3);
+    syncPair(padLRange, padLNum, 0, 3);
+    syncPair(padRRange, padRNum, 0, 3);
+  }
+
+  /* ---- 渲染 ---- */
   function esc(s) {
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
@@ -303,131 +744,247 @@
     text.split(/\r?\n/).forEach(function (line) {
       var t = line.trim();
       if (!t) return;
-      var parts = t.split(/\s+/); /* 空格或 Tab 分隔 */
+      var parts = t.split(/\s+/);
       out.push({ name: parts[0], org: parts.slice(1).join(' ') });
     });
     return out;
   }
 
+  function alignCss(a, css) {
+    if (a === 'left') return css + 'text-align:left;';
+    if (a === 'right') return css + 'text-align:right;';
+    if (a === 'distribute') return css + 'text-align:justify;text-align-last:justify;';
+    return css + 'text-align:center;';
+  }
+
+  function lineStyle(p, kind) {
+    var css = 'font-size:' + posNum(p[kind + 'Size'], DEFAULTS[kind + 'Size']) + 'cm;' +
+              'color:' + p[kind + 'Color'] + ';' +
+              'font-weight:' + p[kind + 'Weight'] + ';' +
+              'line-height:' + posNum(p[kind + 'Line'], DEFAULTS[kind + 'Line']) + 'cm;' +
+              'margin-top:' + nonNeg(p[kind + 'Before'], DEFAULTS[kind + 'Before']) + 'cm;' +
+              'margin-bottom:' + nonNeg(p[kind + 'After'], DEFAULTS[kind + 'After']) + 'cm;';
+    if (p[kind + 'Font'] && /^[A-Za-z0-9 ._-]+$/.test(p[kind + 'Font'])) {
+      css += 'font-family:&quot;' + p[kind + 'Font'] + '&quot;,sans-serif;';
+    }
+    return alignCss(p[kind + 'Align'], css);
+  }
+
   function render() {
-    /* --- 尺寸 --- */
-    var W = parseFloat(wIn.value) || 95, H = parseFloat(hIn.value) || 34;
-    W = Math.min(200, Math.max(40, W));
-    H = Math.min(138, Math.max(10, H));
-    wIn.value = W; hIn.value = H;
+    var p = current(), k = target;
+    sizeVal.textContent = posNum(p[k + 'Size'], DEFAULTS[k + 'Size']) + 'cm';
+    lineVal.textContent = posNum(p[k + 'Line'], DEFAULTS[k + 'Line']) + 'cm';
+    beforeVal.textContent = nonNeg(p[k + 'Before'], DEFAULTS[k + 'Before']) + 'cm';
+    afterVal.textContent = nonNeg(p[k + 'After'], DEFAULTS[k + 'After']) + 'cm';
+    wVal.textContent = posNum(p.w, DEFAULTS.w) + 'cm';
+    hVal.textContent = posNum(p.h, DEFAULTS.h) + 'cm';
+    gapVal.textContent = nonNeg(p.gap, DEFAULTS.gap) + 'cm';
+    padTVal.textContent = nonNeg(p.cardPadT, DEFAULTS.cardPadT) + 'cm';
+    padBVal.textContent = nonNeg(p.cardPadB, DEFAULTS.cardPadB) + 'cm';
+    padLVal.textContent = nonNeg(p.cardPadL, DEFAULTS.cardPadL) + 'cm';
+    padRVal.textContent = nonNeg(p.cardPadR, DEFAULTS.cardPadR) + 'cm';
 
-    var nameSize = +nameFs.value, orgSize = +orgFs.value, gap = +gapIn.value;
-    nameVal.textContent = nameSize + 'px';
-    orgVal.textContent = orgSize + 'px';
-    gapVal.textContent = gap + 'mm';
-
-    var nameWeight = nameBold.checked ? 700 : 400;
-    var orgWeight = orgBold.checked ? 700 : 400;
-    var nameTA = state.nameAlign, orgTA = state.orgAlign;
-
-    var people = parsePeople(list.value);
+    var W = posNum(p.w, DEFAULTS.w);
+    var H = posNum(p.h, DEFAULTS.h);
+    var gap = nonNeg(p.gap, DEFAULTS.gap);
+    var padCss = 'padding:' + nonNeg(p.cardPadT, DEFAULTS.cardPadT) + 'cm ' +
+                 nonNeg(p.cardPadR, DEFAULTS.cardPadR) + 'cm ' +
+                 nonNeg(p.cardPadB, DEFAULTS.cardPadB) + 'cm ' +
+                 nonNeg(p.cardPadL, DEFAULTS.cardPadL) + 'cm;';
     var cardH = H * 2; /* 展开总高 = 两个显示面 */
 
-    /* --- 每页网格：向下排、自动分页 --- */
     var cols = Math.max(1, Math.floor((CW + gap) / (W + gap)));
     var rows = Math.max(1, Math.floor((CH + gap) / (cardH + gap)));
     var perPage = cols * rows;
 
+    var people = parsePeople(list.value);
     if (!people.length) {
       pages.innerHTML = '<div class="empty">请在上方「名单」框输入：每行一个「姓名 单位」</div>';
       stat.innerHTML = '等待输入名单…';
       return;
     }
+
     var pageCount = Math.ceil(people.length / perPage);
     var html = '';
-    for (var p = 0; p < pageCount; p++) {
-      var slice = people.slice(p * perPage, (p + 1) * perPage);
-      html += '<div class="page" style="grid-template-columns:repeat(' + cols + ',' + W + 'mm);' +
-              'grid-template-rows:repeat(' + rows + ',' + cardH + 'mm);gap:' + gap + 'mm">';
+    for (var i = 0; i < pageCount; i++) {
+      var slice = people.slice(i * perPage, (i + 1) * perPage);
+      html += '<div class="page" style="grid-template-columns:repeat(' + cols + ',' + W + 'cm);' +
+              'grid-template-rows:repeat(' + rows + ',' + cardH + 'cm);gap:' + gap + 'cm">';
       slice.forEach(function (pe) {
-        html += '<div class="card" style="width:' + W + 'mm;height:' + cardH + 'mm">' +
-          '<div class="face top"><div class="name" style="font-size:' + nameSize + 'px;font-weight:' + nameWeight + ';text-align:' + nameTA + '">' + esc(pe.name) + '</div><div class="org" style="font-size:' + orgSize + 'px;font-weight:' + orgWeight + ';text-align:' + orgTA + '">' + esc(pe.org) + '</div></div>' +
-          '<div class="face bottom"><div class="name" style="font-size:' + nameSize + 'px;font-weight:' + nameWeight + ';text-align:' + nameTA + '">' + esc(pe.name) + '</div><div class="org" style="font-size:' + orgSize + 'px;font-weight:' + orgWeight + ';text-align:' + orgTA + '">' + esc(pe.org) + '</div></div>' +
+        html += '<div class="card" style="width:' + W + 'cm;height:' + cardH + 'cm">' +
+          '<div class="face top" style="' + padCss + '"><div class="line" style="' + lineStyle(p, 'name') + '">' + esc(pe.name) + '</div>' +
+          '<div class="line" style="' + lineStyle(p, 'org') + '">' + esc(pe.org) + '</div></div>' +
+          '<div class="face bottom" style="' + padCss + '"><div class="line" style="' + lineStyle(p, 'name') + '">' + esc(pe.name) + '</div>' +
+          '<div class="line" style="' + lineStyle(p, 'org') + '">' + esc(pe.org) + '</div></div>' +
           '</div>';
       });
-      html += '</div><div class="page-num">第 ' + (p + 1) + ' 页 / 共 ' + pageCount + ' 页</div>';
+      html += '</div><div class="page-num">第 ' + (i + 1) + ' 页 / 共 ' + pageCount + ' 页</div>';
     }
     pages.innerHTML = html;
 
-    /* --- 字号自适应：内容超宽时逐级缩小，防止溢出 --- */
-    pages.querySelectorAll('.card').forEach(function (card) {
-      ['name', 'org'].forEach(function (cls) {
-        var el = card.querySelector('.' + cls);
-        if (!el) return;
-        var face = el.parentElement, fs = getComputedStyle(face);
-        /* 可用宽度 = 显示面内容区宽（减 padding）：防止长名字/单位溢出卡片 */
-        var avail = face.clientWidth - parseFloat(fs.paddingLeft) - parseFloat(fs.paddingRight);
-        var size = parseFloat(getComputedStyle(el).fontSize);
-        while (el.scrollWidth > avail + 1 && size > 9) {
-          size -= 1;
-          el.style.fontSize = size + 'px';
-        }
-      });
-    });
-
     stat.innerHTML = '每页 <b>' + perPage + '</b> 个（' + cols + '列×' + rows + '行）· 共 <b>' + pageCount +
-      '</b> 页 · A4 竖版 210×297mm';
+      '</b> 页 · A4 横版 297×210mm';
   }
 
-  presetSel.addEventListener('change', function () {
-    var v = presetSel.value;
-    if (v !== 'custom' && PRESETS[v]) {
-      wIn.value = PRESETS[v].w;
-      hIn.value = PRESETS[v].h;
+  /* ---- 配置管理 ---- */
+  function switchProfile(id) {
+    activeId = id;
+    refreshProfileSelect();
+    applyProfileToUI();
+    save();
+    render();
+  }
+
+  function addProfile(base, name) {
+    var np = sanitizeProfile(base);
+    np.id = uid();
+    np.name = name;
+    profiles.push(np);
+    switchProfile(np.id);
+    return np;
+  }
+
+  newBtn.addEventListener('click', function () {
+    var n = 1;
+    var names = profiles.map(function (p) { return p.name; });
+    while (names.indexOf('新配置 ' + n) !== -1) n++;
+    var name = prompt('新配置名称：', '新配置 ' + n);
+    if (name === null) return;
+    name = name.trim() || ('新配置 ' + n);
+    addProfile(current(), name);
+  });
+
+  dupBtn.addEventListener('click', function () {
+    addProfile(current(), current().name + ' 副本');
+  });
+
+  renBtn.addEventListener('click', function () {
+    var p = current();
+    var name = prompt('重命名配置：', p.name);
+    if (name === null) return;
+    name = name.trim();
+    if (name) {
+      p.name = name;
+      refreshProfileSelect();
+      save();
     }
+  });
+
+  delBtn.addEventListener('click', function () {
+    if (profiles.length <= 1) { alert('至少保留一套配置，无法删除。'); return; }
+    var p = current();
+    if (!confirm('确定删除配置「' + p.name + '」？')) return;
+    profiles = profiles.filter(function (x) { return x.id !== p.id; });
+    if (activeId === p.id) activeId = profiles[0].id;
+    refreshProfileSelect();
+    applyProfileToUI();
+    save();
     render();
   });
-  [wIn, hIn].forEach(function (inp) {
-    inp.addEventListener('input', function () { presetSel.value = 'custom'; render(); });
+
+  /* ---- 导出 / 导入 / 重置 ---- */
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+  exportBtn.addEventListener('click', function () {
+    var d = new Date();
+    var stamp = '' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate());
+    var data = {
+      version: 5,
+      exportedAt: new Date().toISOString(),
+      profiles: profiles,
+      activeId: activeId,
+      list: list.value
+    };
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = '姓名牌配置-' + stamp + '.json';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 200);
   });
 
-  /* --- 字号：滑块 ↔ 数字输入 双向同步（数字可手动输入任意值，上限 200） --- */
-  function bindFsSync(slider, num) {
-    slider.addEventListener('input', function () {
-      num.value = slider.value;
-      render();
-    });
-    num.addEventListener('input', function () {
-      var v = parseInt(num.value, 10);
-      if (isNaN(v)) { v = slider.value; }          /* 输入框清空时回退滑块值 */
-      v = Math.min(200, Math.max(1, v));           /* 1–200 上限 */
-      slider.value = v;
-      num.value = v;
-      render();
-    });
-  }
-  bindFsSync(nameFs, nameFsNum);
-  bindFsSync(orgFs, orgFsNum);
+  importBtn.addEventListener('click', function () { importFile.click(); });
 
-  /* --- 对齐方式按钮组 --- */
-  function bindAlign(row, key) {
-    row.addEventListener('click', function (e) {
-      var btn = e.target.closest('button');
-      if (!btn) return;
-      row.querySelectorAll('button').forEach(function (b) { b.classList.remove('active'); });
-      btn.classList.add('active');
-      state[key] = btn.getAttribute('data-align');
-      render();
-    });
-  }
-  bindAlign(nameAlignRow, 'nameAlign');
-  bindAlign(orgAlignRow, 'orgAlign');
-
-  [nameBold, orgBold].forEach(function (cb) {
-    cb.addEventListener('change', render);
+  importFile.addEventListener('change', function () {
+    var file = importFile.files && importFile.files[0];
+    importFile.value = '';
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var data = JSON.parse(reader.result);
+        if (!data || !Array.isArray(data.profiles) || !data.profiles.length) {
+          throw new Error('bad format');
+        }
+        if (data.version === 1) {
+          profiles = data.profiles.map(migrateV1);
+        } else if (data.version === 2) {
+          profiles = data.profiles.map(migrateV2);
+        } else if (data.version === 3) {
+          profiles = data.profiles.map(migrateV3);
+        } else if (data.version === 4) {
+          profiles = data.profiles.map(migrateV4);
+        } else if (data.version === 5) {
+          profiles = data.profiles.map(sanitizeProfile);
+        } else {
+          throw new Error('unsupported version');
+        }
+        activeId = data.activeId;
+        if (!profiles.some(function (p) { return p.id === activeId; })) activeId = profiles[0].id;
+        if (typeof data.list === 'string') list.value = data.list;
+        refreshProfileSelect();
+        applyProfileToUI();
+        save();
+        render();
+        alert('导入成功：' + profiles.length + ' 套配置。');
+      } catch (e) {
+        alert('导入失败：文件格式不正确，现有数据未改变。');
+      }
+    };
+    reader.onerror = function () { alert('导入失败：无法读取文件，现有数据未改变。'); };
+    reader.readAsText(file, 'utf-8');
   });
 
-  [gapIn, list].forEach(function (inp) {
-    inp.addEventListener('input', render);
+  resetBtn.addEventListener('click', function () {
+    if (!confirm('确定恢复默认？将清空所有配置和名单。')) return;
+    localStorage.removeItem(KEY);
+    loadDefaults();
+    refreshProfileSelect();
+    applyProfileToUI();
+    save();
+    render();
   });
-  $('printBtn').addEventListener('click', function () { window.print(); });
 
+  /* ---- 初始化 ---- */
+  fillFontSelects();
+  buildSwatches(colorSw, colorInp);
+  load();
+  refreshProfileSelect();
+  applyProfileToUI();
   render();
+
+  var bindFields = [
+    fontSel, sizeRange, sizeNum, colorInp, weightSel, alignSel,
+    lineRange, lineNum, beforeRange, beforeNum, afterRange, afterNum,
+    wRange, wNum, hRange, hNum, gapRange, gapNum,
+    padTRange, padTNum, padBRange, padBNum, padLRange, padLNum, padRRange, padRNum,
+    list
+  ];
+  bindFields.forEach(function (el) {
+    el.addEventListener('input', onUIInput);
+    el.addEventListener('change', onUIInput);
+  });
+
+  objSel.addEventListener('change', function () {
+    target = objSel.value;
+    applyTargetToUI();
+    render();
+  });
+
+  profileSel.addEventListener('change', function () { switchProfile(profileSel.value); });
+  printBtn.addEventListener('click', function () { window.print(); });
 })();
 </script>
 </body>
