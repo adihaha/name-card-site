@@ -19,8 +19,6 @@
       linear-gradient(90deg, rgba(70,90,150,.04) 1px, transparent 1px);
     background-size:10mm 10mm;
   }
-  @page{ size:A4 landscape; margin:10mm; }
-
   .layout{
     display:flex; align-items:flex-start; gap:14px;
     max-width:1720px; margin:0 auto; padding:8px 14px 20px;
@@ -34,15 +32,15 @@
     padding:14px 14px 16px; box-shadow:0 3px 14px rgba(20,30,60,.08);
   }
   .side-sec{
-    border:1px solid #e9ebf2; border-radius:10px;
-    padding:10px 12px 12px; margin-top:10px;
+    border:1px solid #e9ebf2; border-radius:8px;
+    padding:6px 10px 7px; margin-top:6px;
   }
   .sec-label{
     font-size:11.5px; font-weight:700; color:var(--accent);
-    margin-bottom:8px; letter-spacing:.3px;
+    margin-bottom:4px; letter-spacing:.3px;
   }
   details.side-sec summary.sec-label{
-    cursor:pointer; list-style:none; user-select:none; margin-bottom:6px;
+    cursor:pointer; list-style:none; user-select:none; margin-bottom:4px;
   }
   details.side-sec summary.sec-label::-webkit-details-marker{ display:none; }
   details.side-sec summary.sec-label::before{ content:'▸ '; color:var(--accent); }
@@ -77,20 +75,36 @@
   }
   .cfg-row select:focus{ border-color:var(--accent); }
   .btn{
-    flex:1; min-width:64px; padding:6px 8px; font-size:12px; font-weight:600; cursor:pointer;
+    flex:1; min-width:64px; padding:5px 7px; font-size:12px; font-weight:600; cursor:pointer;
     background:#fff; color:var(--ink); border:1px solid #cdd3e0; border-radius:8px;
     text-align:center;
   }
   .btn:hover{ border-color:var(--accent); color:var(--accent); }
   .btn.danger:hover{ border-color:var(--danger); color:var(--danger); }
 
-  .field{ display:flex; flex-direction:column; gap:4px; margin-top:8px; }
-  .field label{ font-size:12px; color:#5a6072; margin-bottom:2px; white-space:nowrap; }
+  .field{ display:flex; flex-direction:column; gap:2px; margin-top:4px; }
+  .field label{ font-size:11.5px; color:#5a6072; margin-bottom:1px; white-space:nowrap; }
   .field label .val{ color:var(--accent); font-weight:700; }
-  .hint{ font-size:11px; color:#8a93a6; line-height:1.5; }
+  .hint{ font-size:10.5px; color:#8a93a6; line-height:1.45; }
+  .field.compact{ flex-direction:row; align-items:center; justify-content:space-between; gap:8px; }
+  .field.compact label{ margin:0; }
+  .field.compact input[type=number]{ width:92px; flex:none; }
+  .field.compact select{ width:auto; flex:1; min-width:0; }
+  .field.slider-line{ flex-direction:row; align-items:center; gap:8px; }
+  .field.slider-line label{ margin:0; width:38px; flex:none; }
+  .field.slider-line input[type=range]{ flex:1; min-width:0; }
+  .field.slider-line input[type=number]{ width:64px; flex:none; }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:6px 8px; }
+  .grid2 .field{ margin-top:0; }
+  .grid2 .size-row{ gap:6px; }
+  .grid2 .size-row input[type=number]{ width:56px; }
+  .pad-grid .field.compact{ gap:6px; }
+  .pad-grid .field.compact input[type=number]{ width:64px; }
+  .chk{ display:flex; align-items:center; gap:5px; cursor:pointer; white-space:nowrap; }
+  .chk input{ width:15px; height:15px; accent-color:var(--accent); cursor:pointer; }
   .field select,
   .field input[type=number]{
-    width:100%; padding:6px 8px; font-size:13px;
+    width:100%; padding:5px 7px; font-size:13px;
     border:1px solid #cdd3e0; border-radius:8px;
     color:var(--ink); outline:none; background:#fff;
   }
@@ -105,21 +119,21 @@
   .size-row input[type=number]{ width:72px; flex:none; }
   .swatches{ display:flex; flex-wrap:wrap; gap:6px; }
   .swatch{
-    width:24px; height:24px; border-radius:7px; cursor:pointer;
+    width:22px; height:22px; border-radius:6px; cursor:pointer;
     border:2px solid #fff; box-shadow:0 0 0 1px #cdd3e0; padding:0;
   }
   .swatch:hover{ box-shadow:0 0 0 2px var(--accent); }
 
   .list-area textarea{
-    width:100%; min-height:96px; resize:vertical;
+    width:100%; min-height:64px; resize:vertical;
     padding:8px 10px; font-size:13px; line-height:1.65;
     border:1px solid #cdd3e0; border-radius:8px;
     font-family:inherit; color:var(--ink); outline:none;
   }
   .list-area textarea:focus{ border-color:var(--accent); }
   .stat{
-    margin-top:8px; font-size:12px; color:#44506b; background:#f4f6fb;
-    border-radius:8px; padding:7px 9px; line-height:1.6;
+    margin-top:6px; font-size:12px; color:#44506b; background:#f4f6fb;
+    border-radius:8px; padding:5px 8px; line-height:1.6;
   }
   .stat b{ color:var(--accent); }
 
@@ -144,6 +158,7 @@
     display:grid;
     place-content:center;
   }
+  body.paper-portrait .page{ width:210mm; height:297mm; }
   .page-num{ font-size:12px; color:#8a93a6; margin-top:-4mm; letter-spacing:1px; }
   .empty{
     max-width:1000px; margin:40px auto; text-align:center;
@@ -161,9 +176,10 @@
     overflow:hidden;
     break-inside:avoid;
   }
+  .card.show-crop{ border:0.3mm dashed #b0b0be; }
   .card .face{
     flex:1;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
     text-align:center;
     overflow:hidden;
   }
@@ -183,10 +199,12 @@
       margin:0;
       page-break-after:always; break-after:page;
     }
+    body.paper-portrait .page{ width:190mm; height:277mm; }
     .page:last-child{ page-break-after:auto; break-after:auto; }
     .card{ box-shadow:none; }
   }
 </style>
+<style id="paperPageCss">@page{ size:A4 landscape; margin:10mm; }</style>
 </head>
 <body>
 
@@ -196,9 +214,12 @@
     <summary>📖 使用说明</summary>
     <ol>
       <li>名单每行一个「姓名 单位」，空格或 Tab 分隔，可只写姓名。</li>
-      <li>「样式对象」选姓名或单位，分别设置字体、字号、颜色、字重、对齐、行高、段前/段后；行高为该行占用的固定高度，建议不小于字号的 1.4 倍。</li>
+      <li>「卡片整体设置」：卡片宽高、纸张方向、牌间距、内边距与裁剪线；「卡片内容行设置」：姓名/单位各自的字体、字号、颜色、字重、对齐、左右边距、行高、段前/段后。</li>
+      <li>行高为该行固定高度，建议不小于字号的 1.4 倍；姓名与单位间距 = 姓名段后 + 单位段前。</li>
       <li>滑块仅作辅助，数字框可填任意值（单位 cm），以预览效果为准。</li>
       <li>「样式配置」可保存多套配置，切换即整批换样式；名单独立保存，自动存在本机浏览器。</li>
+      <li>卡片内容靠上排列：姓名离上边缘 = 卡片上边距 + 姓名段前；每行左右留白由该行「左右边距」控制。</li>
+      <li>「显示裁剪线」开启时卡片外沿打印一圈虚线，剪下后沿中间折线对折成帐篷。</li>
     </ol>
     <p class="fold-tip"><b>折叠：</b>沿虚线对折成倒 V 帐篷形，上下两面名字都朝上（下半已旋转 180°）。</p>
   </details>
@@ -208,7 +229,7 @@
   <aside class="sidebar">
     <div class="side-sec list-area">
       <div class="sec-label">名单（每行：姓名 单位）</div>
-      <textarea id="list" rows="7" placeholder="每行一个：姓名 单位（空格分隔，可只写姓名）">张伟 珠海华发集团
+      <textarea id="list" rows="5" placeholder="每行一个：姓名 单位（空格分隔，可只写姓名）">张伟 珠海华发集团
 李娜 腾讯科技
 王强 格力电器
 陈静 小米科技
@@ -241,64 +262,51 @@
     </div>
 
     <details class="side-sec" open>
-      <summary class="sec-label">卡片尺寸（cm）</summary>
-      <div class="field" style="margin-top:0;">
-        <label>宽度 <span id="wVal" class="val">9.5cm</span></label>
-        <div class="size-row">
-          <input id="wRange" type="range" min="1" max="30" step="1">
-          <input id="wNum" type="number" step="0.1">
+      <summary class="sec-label">卡片整体设置（cm）</summary>
+      <div class="grid2">
+        <div class="field compact">
+          <label>纸张方向</label>
+          <select id="paperSel">
+            <option value="auto" selected>自动</option>
+            <option value="portrait">竖版 A4</option>
+            <option value="landscape">横版 A4</option>
+          </select>
+        </div>
+        <div class="field compact">
+          <label>显示裁剪线</label>
+          <label class="chk"><input id="cropChk" type="checkbox" checked></label>
         </div>
       </div>
-      <div class="field">
-        <label>高度 <span id="hVal" class="val">3.4cm</span></label>
-        <div class="size-row">
-          <input id="hRange" type="range" min="1" max="30" step="1">
-          <input id="hNum" type="number" step="0.1">
+      <div class="grid2">
+        <div class="field">
+          <label>宽度</label>
+          <div class="size-row">
+            <input id="wRange" type="range" min="1" max="30" step="1">
+            <input id="wNum" type="number" step="0.1">
+          </div>
+        </div>
+        <div class="field">
+          <label>高度</label>
+          <div class="size-row">
+            <input id="hRange" type="range" min="1" max="30" step="1">
+            <input id="hNum" type="number" step="0.1">
+          </div>
         </div>
       </div>
-      <div class="field">
-        <label>牌间距 <span id="gapVal" class="val">0.5cm</span></label>
-        <div class="size-row">
-          <input id="gapRange" type="range" min="0" max="3" step="0.05">
-          <input id="gapNum" type="number" step="0.05">
-        </div>
+      <div class="field compact">
+        <label>牌间距</label>
+        <input id="gapNum" type="number" step="0.05">
+      </div>
+      <div class="grid2 pad-grid">
+        <div class="field compact"><label>内边距·上</label><input id="padTNum" type="number" step="0.05"></div>
+        <div class="field compact"><label>内边距·下</label><input id="padBNum" type="number" step="0.05"></div>
+        <div class="field compact"><label>内边距·左</label><input id="padLNum" type="number" step="0.05"></div>
+        <div class="field compact"><label>内边距·右</label><input id="padRNum" type="number" step="0.05"></div>
       </div>
     </details>
 
     <details class="side-sec" open>
-      <summary class="sec-label">卡片内边距（内容距边缘 cm）</summary>
-      <div class="field" style="margin-top:0;">
-        <label>上 <span id="padTVal" class="val">0.2cm</span></label>
-        <div class="size-row">
-          <input id="padTRange" type="range" min="0" max="3" step="0.05">
-          <input id="padTNum" type="number" step="0.05">
-        </div>
-      </div>
-      <div class="field">
-        <label>下 <span id="padBVal" class="val">0.2cm</span></label>
-        <div class="size-row">
-          <input id="padBRange" type="range" min="0" max="3" step="0.05">
-          <input id="padBNum" type="number" step="0.05">
-        </div>
-      </div>
-      <div class="field">
-        <label>左 <span id="padLVal" class="val">0.2cm</span></label>
-        <div class="size-row">
-          <input id="padLRange" type="range" min="0" max="3" step="0.05">
-          <input id="padLNum" type="number" step="0.05">
-        </div>
-      </div>
-      <div class="field">
-        <label>右 <span id="padRVal" class="val">0.2cm</span></label>
-        <div class="size-row">
-          <input id="padRRange" type="range" min="0" max="3" step="0.05">
-          <input id="padRNum" type="number" step="0.05">
-        </div>
-      </div>
-    </details>
-
-    <details class="side-sec">
-      <summary class="sec-label">样式调整（姓名 / 单位）</summary>
+      <summary class="sec-label">卡片内容行设置（姓名 / 单位）</summary>
       <div class="field" style="margin-top:0;">
         <label>样式对象</label>
         <select id="objSel">
@@ -306,29 +314,40 @@
           <option value="org">单位</option>
         </select>
       </div>
-      <div class="field">
-        <label>字体</label>
-        <select id="fontSel"></select>
+      <div class="grid2">
+        <div class="field">
+          <label>字体</label>
+          <select id="fontSel"></select>
+        </div>
+        <div class="field">
+          <label>字重</label>
+          <select id="weightSel">
+            <option value="400">常规</option>
+            <option value="500">中等</option>
+            <option value="700">粗体</option>
+          </select>
+        </div>
       </div>
-      <div class="field">
-        <label>字号 <span id="sizeVal" class="val">1cm</span></label>
-        <div class="size-row">
-          <input id="sizeRange" type="range" min="0.1" max="5" step="0.1">
-          <input id="sizeNum" type="number" step="0.1">
+      <div class="grid2">
+        <div class="field">
+          <label>字号 <span id="sizeVal" class="val">1cm</span></label>
+          <div class="size-row">
+            <input id="sizeRange" type="range" min="0.1" max="5" step="0.1">
+            <input id="sizeNum" type="number" step="0.1">
+          </div>
+        </div>
+        <div class="field">
+          <label>行高 <span id="lineVal" class="val">7cm</span></label>
+          <div class="size-row">
+            <input id="lineRange" type="range" min="0.1" max="5" step="0.1">
+            <input id="lineNum" type="number" step="0.1">
+          </div>
         </div>
       </div>
       <div class="field">
         <label>颜色</label>
         <div class="swatches" id="colorSw"></div>
         <input id="colorInp" type="color">
-      </div>
-      <div class="field">
-        <label>字重</label>
-        <select id="weightSel">
-          <option value="400">常规</option>
-          <option value="500">中等</option>
-          <option value="700">粗体</option>
-        </select>
       </div>
       <div class="field">
         <label>对齐方式</label>
@@ -338,30 +357,38 @@
           <option value="right">右对齐</option>
           <option value="distribute" selected>分散对齐</option>
         </select>
-        <div class="hint">分散对齐：单行文字两端顶满整行，字距自动拉开。</div>
       </div>
-      <div class="field">
-        <label>行高（固定值）<span id="lineVal" class="val">7cm</span></label>
-        <div class="size-row">
-          <input id="lineRange" type="range" min="0.1" max="5" step="0.1">
-          <input id="lineNum" type="number" step="0.1">
+      <div class="grid2">
+        <div class="field">
+          <label>左边距 <span id="insetLVal" class="val">0cm</span></label>
+          <div class="size-row">
+            <input id="insetLRange" type="range" min="0" max="5" step="0.05">
+            <input id="insetLNum" type="number" step="0.05">
+          </div>
         </div>
-        <div class="hint">该行占用的固定高度（Word 固定值行距）；小于字号×1.4 会与相邻行重叠。</div>
+        <div class="field">
+          <label>右边距 <span id="insetRVal" class="val">0cm</span></label>
+          <div class="size-row">
+            <input id="insetRRange" type="range" min="0" max="5" step="0.05">
+            <input id="insetRNum" type="number" step="0.05">
+          </div>
+        </div>
       </div>
-      <div class="field">
-        <label>段前（上方空白）<span id="beforeVal" class="val">0cm</span></label>
-        <div class="size-row">
-          <input id="beforeRange" type="range" min="0" max="2" step="0.05">
-          <input id="beforeNum" type="number" step="0.05">
+      <div class="grid2">
+        <div class="field">
+          <label>段前 <span id="beforeVal" class="val">0cm</span></label>
+          <div class="size-row">
+            <input id="beforeRange" type="range" min="0" max="2" step="0.05">
+            <input id="beforeNum" type="number" step="0.05">
+          </div>
         </div>
-      </div>
-      <div class="field">
-        <label>段后（下方空白）<span id="afterVal" class="val">0.2cm</span></label>
-        <div class="size-row">
-          <input id="afterRange" type="range" min="0" max="2" step="0.05">
-          <input id="afterNum" type="number" step="0.05">
+        <div class="field">
+          <label>段后 <span id="afterVal" class="val">0.2cm</span></label>
+          <div class="size-row">
+            <input id="afterRange" type="range" min="0" max="2" step="0.05">
+            <input id="afterNum" type="number" step="0.05">
+          </div>
         </div>
-        <div class="hint">姓名与单位的间距 = 姓名段后 + 单位段前。</div>
       </div>
     </details>
 
@@ -378,8 +405,6 @@
   function $(id) { return document.getElementById(id); }
   var KEY = 'nameCardEditor.v5';
   var OLD_KEYS = ['nameCardEditor.v4', 'nameCardEditor.v3', 'nameCardEditor.v2', 'nameCardEditor.v1', 'nameCardEditor'];
-  var CW = 27.7, CH = 19; /* A4 横版 297×210mm，@page 边距 10mm → 内容区 27.7cm × 19cm */
-
   var FONT_LIST = [
     { label: '苹方 PingFang SC', value: 'PingFang SC' },
     { label: '冬青黑体 Hiragino Sans GB', value: 'Hiragino Sans GB' },
@@ -412,12 +437,15 @@
   var DEFAULT_LIST = '张伟 珠海华发集团\n李娜 腾讯科技\n王强 格力电器\n陈静 小米科技\n刘洋 珠海市政府\n赵敏 中山大学\n孙丽 华为技术\n周杰 南方电网\n吴芳 珠海横琴新区管委会\n郑凯 格力智能装备';
 
   var DEFAULTS = {
-    w: 20, h: 10, gap: 0.5,
-    cardPadT: 0.2, cardPadB: 0.2, cardPadL: 0.2, cardPadR: 0.2,
+    w: 20, h: 10, gap: 0.5, crop: true,
+    paper: 'portrait',
+    cardPadT: 1, cardPadB: 0, cardPadL: 0.4, cardPadR: 0.4,
     nameFont: '', nameSize: 5, nameColor: '#111111', nameWeight: '700',
-    nameAlign: 'distribute', nameLine: 7, nameBefore: 0, nameAfter: 0.2,
-    orgFont: '', orgSize: 0.5, orgColor: '#111111', orgWeight: '400',
-    orgAlign: 'center', orgLine: 0.7, orgBefore: 0, orgAfter: 0
+    nameAlign: 'distribute', nameLine: 5, nameBefore: 0, nameAfter: 0,
+    nameInsetL: 0, nameInsetR: 0,
+    orgFont: '', orgSize: 1, orgColor: '#111111', orgWeight: '400',
+    orgAlign: 'distribute', orgLine: 3, orgBefore: 0, orgAfter: 0,
+    orgInsetL: 5, orgInsetR: 5
   };
 
   /* ---- 元素 ---- */
@@ -425,18 +453,19 @@
       newBtn = $('newBtn'), dupBtn = $('dupBtn'), renBtn = $('renBtn'), delBtn = $('delBtn'),
       exportBtn = $('exportBtn'), importBtn = $('importBtn'), importFile = $('importFile'), resetBtn = $('resetBtn'),
       objSel = $('objSel'), fontSel = $('fontSel'),
+      paperSel = $('paperSel'), cropChk = $('cropChk'), paperPageCss = $('paperPageCss'),
       sizeRange = $('sizeRange'), sizeNum = $('sizeNum'), sizeVal = $('sizeVal'),
       colorSw = $('colorSw'), colorInp = $('colorInp'), weightSel = $('weightSel'), alignSel = $('alignSel'),
       lineRange = $('lineRange'), lineNum = $('lineNum'), lineVal = $('lineVal'),
       beforeRange = $('beforeRange'), beforeNum = $('beforeNum'), beforeVal = $('beforeVal'),
       afterRange = $('afterRange'), afterNum = $('afterNum'), afterVal = $('afterVal'),
-      wRange = $('wRange'), wNum = $('wNum'), wVal = $('wVal'),
-      hRange = $('hRange'), hNum = $('hNum'), hVal = $('hVal'),
-      gapRange = $('gapRange'), gapNum = $('gapNum'), gapVal = $('gapVal'),
-      padTRange = $('padTRange'), padTNum = $('padTNum'), padTVal = $('padTVal'),
-      padBRange = $('padBRange'), padBNum = $('padBNum'), padBVal = $('padBVal'),
-      padLRange = $('padLRange'), padLNum = $('padLNum'), padLVal = $('padLVal'),
-      padRRange = $('padRRange'), padRNum = $('padRNum'), padRVal = $('padRVal'),
+      insetLRange = $('insetLRange'), insetLNum = $('insetLNum'), insetLVal = $('insetLVal'),
+      insetRRange = $('insetRRange'), insetRNum = $('insetRNum'), insetRVal = $('insetRVal'),
+      wRange = $('wRange'), wNum = $('wNum'),
+      hRange = $('hRange'), hNum = $('hNum'),
+      gapNum = $('gapNum'),
+      padTNum = $('padTNum'), padBNum = $('padBNum'),
+      padLNum = $('padLNum'), padRNum = $('padRNum'),
       list = $('list'), pages = $('pages'), stat = $('stat'), printBtn = $('printBtn');
 
   var profiles = [], activeId = null, target = 'name';
@@ -485,6 +514,7 @@
       out[k] = posNum(out[k], DEFAULTS[k]);
     });
     ['nameBefore', 'nameAfter', 'orgBefore', 'orgAfter',
+     'nameInsetL', 'nameInsetR', 'orgInsetL', 'orgInsetR',
      'cardPadT', 'cardPadB', 'cardPadL', 'cardPadR'].forEach(function (k) {
       out[k] = nonNeg(out[k], DEFAULTS[k]);
     });
@@ -497,6 +527,8 @@
     ['nameAlign', 'orgAlign'].forEach(function (k) {
       if (['left', 'center', 'right', 'distribute'].indexOf(out[k]) === -1) out[k] = DEFAULTS[k];
     });
+    if (['auto', 'portrait', 'landscape'].indexOf(out.paper) === -1) out.paper = DEFAULTS.paper;
+    if (typeof out.crop !== 'boolean') out.crop = DEFAULTS.crop;
     return out;
   }
 
@@ -661,17 +693,23 @@
     beforeNum.value = p[k + 'Before'];
     afterRange.value = p[k + 'After'];
     afterNum.value = p[k + 'After'];
+    insetLRange.value = p[k + 'InsetL'];
+    insetLNum.value = p[k + 'InsetL'];
+    insetRRange.value = p[k + 'InsetR'];
+    insetRNum.value = p[k + 'InsetR'];
   }
 
   function applyProfileToUI() {
     var p = current();
+    paperSel.value = p.paper;
+    cropChk.checked = p.crop !== false;
     wRange.value = p.w; wNum.value = p.w;
     hRange.value = p.h; hNum.value = p.h;
-    gapRange.value = p.gap; gapNum.value = p.gap;
-    padTRange.value = p.cardPadT; padTNum.value = p.cardPadT;
-    padBRange.value = p.cardPadB; padBNum.value = p.cardPadB;
-    padLRange.value = p.cardPadL; padLNum.value = p.cardPadL;
-    padRRange.value = p.cardPadR; padRNum.value = p.cardPadR;
+    gapNum.value = p.gap;
+    padTNum.value = p.cardPadT;
+    padBNum.value = p.cardPadB;
+    padLNum.value = p.cardPadL;
+    padRNum.value = p.cardPadR;
     applyTargetToUI();
   }
 
@@ -685,6 +723,10 @@
     p[k + 'Line'] = posNum(lineNum.value, DEFAULTS[k + 'Line']);
     p[k + 'Before'] = nonNeg(beforeNum.value, DEFAULTS[k + 'Before']);
     p[k + 'After'] = nonNeg(afterNum.value, DEFAULTS[k + 'After']);
+    p[k + 'InsetL'] = nonNeg(insetLNum.value, DEFAULTS[k + 'InsetL']);
+    p[k + 'InsetR'] = nonNeg(insetRNum.value, DEFAULTS[k + 'InsetR']);
+    p.paper = paperSel.value;
+    p.crop = cropChk.checked;
     p.w = posNum(wNum.value, DEFAULTS.w);
     p.h = posNum(hNum.value, DEFAULTS.h);
     p.gap = nonNeg(gapNum.value, DEFAULTS.gap);
@@ -700,13 +742,10 @@
     if (el === lineRange) lineNum.value = lineRange.value;
     if (el === beforeRange) beforeNum.value = beforeRange.value;
     if (el === afterRange) afterNum.value = afterRange.value;
+    if (el === insetLRange) insetLNum.value = insetLRange.value;
+    if (el === insetRRange) insetRNum.value = insetRRange.value;
     if (el === wRange) wNum.value = wRange.value;
     if (el === hRange) hNum.value = hRange.value;
-    if (el === gapRange) gapNum.value = gapRange.value;
-    if (el === padTRange) padTNum.value = padTRange.value;
-    if (el === padBRange) padBNum.value = padBRange.value;
-    if (el === padLRange) padLNum.value = padLRange.value;
-    if (el === padRRange) padRNum.value = padRRange.value;
     syncSliders();
     updateTarget();
     save();
@@ -725,13 +764,10 @@
     syncPair(lineRange, lineNum, 0.1, 5);
     syncPair(beforeRange, beforeNum, 0, 2);
     syncPair(afterRange, afterNum, 0, 2);
+    syncPair(insetLRange, insetLNum, 0, 5);
+    syncPair(insetRRange, insetRNum, 0, 5);
     syncPair(wRange, wNum, 1, 30);
     syncPair(hRange, hNum, 1, 30);
-    syncPair(gapRange, gapNum, 0, 3);
-    syncPair(padTRange, padTNum, 0, 3);
-    syncPair(padBRange, padBNum, 0, 3);
-    syncPair(padLRange, padLNum, 0, 3);
-    syncPair(padRRange, padRNum, 0, 3);
   }
 
   /* ---- 渲染 ---- */
@@ -757,6 +793,13 @@
     return css + 'text-align:center;';
   }
 
+  /* 纸张方向：auto = 竖版放得下（宽≤19cm 且展开高≤27.7cm）用竖版，否则横版 */
+  function resolvePaper(paper, W, cardH) {
+    if (paper === 'portrait') return 'portrait';
+    if (paper === 'landscape') return 'landscape';
+    return (W <= 19 && cardH <= 27.7) ? 'portrait' : 'landscape';
+  }
+
   function lineStyle(p, kind) {
     var css = 'font-size:' + posNum(p[kind + 'Size'], DEFAULTS[kind + 'Size']) + 'cm;' +
               'color:' + p[kind + 'Color'] + ';' +
@@ -764,6 +807,11 @@
               'line-height:' + posNum(p[kind + 'Line'], DEFAULTS[kind + 'Line']) + 'cm;' +
               'margin-top:' + nonNeg(p[kind + 'Before'], DEFAULTS[kind + 'Before']) + 'cm;' +
               'margin-bottom:' + nonNeg(p[kind + 'After'], DEFAULTS[kind + 'After']) + 'cm;';
+    var il = nonNeg(p[kind + 'InsetL'], DEFAULTS[kind + 'InsetL']);
+    var ir = nonNeg(p[kind + 'InsetR'], DEFAULTS[kind + 'InsetR']);
+    if (il > 0 || ir > 0) {
+      css += 'padding-left:' + il + 'cm;padding-right:' + ir + 'cm;';
+    }
     if (p[kind + 'Font'] && /^[A-Za-z0-9 ._-]+$/.test(p[kind + 'Font'])) {
       css += 'font-family:&quot;' + p[kind + 'Font'] + '&quot;,sans-serif;';
     }
@@ -776,14 +824,8 @@
     lineVal.textContent = posNum(p[k + 'Line'], DEFAULTS[k + 'Line']) + 'cm';
     beforeVal.textContent = nonNeg(p[k + 'Before'], DEFAULTS[k + 'Before']) + 'cm';
     afterVal.textContent = nonNeg(p[k + 'After'], DEFAULTS[k + 'After']) + 'cm';
-    wVal.textContent = posNum(p.w, DEFAULTS.w) + 'cm';
-    hVal.textContent = posNum(p.h, DEFAULTS.h) + 'cm';
-    gapVal.textContent = nonNeg(p.gap, DEFAULTS.gap) + 'cm';
-    padTVal.textContent = nonNeg(p.cardPadT, DEFAULTS.cardPadT) + 'cm';
-    padBVal.textContent = nonNeg(p.cardPadB, DEFAULTS.cardPadB) + 'cm';
-    padLVal.textContent = nonNeg(p.cardPadL, DEFAULTS.cardPadL) + 'cm';
-    padRVal.textContent = nonNeg(p.cardPadR, DEFAULTS.cardPadR) + 'cm';
-
+    insetLVal.textContent = nonNeg(p[k + 'InsetL'], DEFAULTS[k + 'InsetL']) + 'cm';
+    insetRVal.textContent = nonNeg(p[k + 'InsetR'], DEFAULTS[k + 'InsetR']) + 'cm';
     var W = posNum(p.w, DEFAULTS.w);
     var H = posNum(p.h, DEFAULTS.h);
     var gap = nonNeg(p.gap, DEFAULTS.gap);
@@ -792,6 +834,12 @@
                  nonNeg(p.cardPadB, DEFAULTS.cardPadB) + 'cm ' +
                  nonNeg(p.cardPadL, DEFAULTS.cardPadL) + 'cm;';
     var cardH = H * 2; /* 展开总高 = 两个显示面 */
+    var ori = resolvePaper(p.paper, W, cardH);
+    document.body.classList.toggle('paper-portrait', ori === 'portrait');
+    document.body.classList.toggle('paper-landscape', ori === 'landscape');
+    var CW = ori === 'portrait' ? 19 : 27.7;
+    var CH = ori === 'portrait' ? 27.7 : 19;
+    paperPageCss.textContent = '@page{ size:A4 ' + ori + '; margin:10mm; }';
 
     var cols = Math.max(1, Math.floor((CW + gap) / (W + gap)));
     var rows = Math.max(1, Math.floor((CH + gap) / (cardH + gap)));
@@ -811,7 +859,7 @@
       html += '<div class="page" style="grid-template-columns:repeat(' + cols + ',' + W + 'cm);' +
               'grid-template-rows:repeat(' + rows + ',' + cardH + 'cm);gap:' + gap + 'cm">';
       slice.forEach(function (pe) {
-        html += '<div class="card" style="width:' + W + 'cm;height:' + cardH + 'cm">' +
+        html += '<div class="card' + (p.crop ? ' show-crop' : '') + '" style="width:' + W + 'cm;height:' + cardH + 'cm">' +
           '<div class="face top" style="' + padCss + '"><div class="line" style="' + lineStyle(p, 'name') + '">' + esc(pe.name) + '</div>' +
           '<div class="line" style="' + lineStyle(p, 'org') + '">' + esc(pe.org) + '</div></div>' +
           '<div class="face bottom" style="' + padCss + '"><div class="line" style="' + lineStyle(p, 'name') + '">' + esc(pe.name) + '</div>' +
@@ -823,7 +871,7 @@
     pages.innerHTML = html;
 
     stat.innerHTML = '每页 <b>' + perPage + '</b> 个（' + cols + '列×' + rows + '行）· 共 <b>' + pageCount +
-      '</b> 页 · A4 横版 297×210mm';
+      '</b> 页 · A4 ' + (ori === 'portrait' ? '竖版 210×297mm' : '横版 297×210mm');
   }
 
   /* ---- 配置管理 ---- */
@@ -968,8 +1016,10 @@
   var bindFields = [
     fontSel, sizeRange, sizeNum, colorInp, weightSel, alignSel,
     lineRange, lineNum, beforeRange, beforeNum, afterRange, afterNum,
-    wRange, wNum, hRange, hNum, gapRange, gapNum,
-    padTRange, padTNum, padBRange, padBNum, padLRange, padLNum, padRRange, padRNum,
+    insetLRange, insetLNum, insetRRange, insetRNum,
+    paperSel, cropChk,
+    wRange, wNum, hRange, hNum, gapNum,
+    padTNum, padBNum, padLNum, padRNum,
     list
   ];
   bindFields.forEach(function (el) {
