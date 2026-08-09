@@ -392,6 +392,25 @@
       </div>
     </details>
 
+    <details class="side-sec" open>
+      <summary class="sec-label">中间线设置（姓名与单位之间）</summary>
+      <div class="field" style="margin-top:0;">
+        <label class="chk" style="font-size:12px;"><input id="midShowChk" type="checkbox" checked> 显示中间线</label>
+      </div>
+      <div class="field">
+        <label>线宽 <span id="midWVal" class="val">0.3mm</span></label>
+        <div class="size-row">
+          <input id="midWRange" type="range" min="0.1" max="1.5" step="0.05">
+          <input id="midWNum" type="number" step="0.05">
+        </div>
+      </div>
+      <div class="field">
+        <label>颜色</label>
+        <div class="swatches" id="midColorSw"></div>
+        <input id="midColorInp" type="color">
+      </div>
+    </details>
+
     <button id="printBtn" class="print-btn" type="button">🖨 打印 / 导出 PDF</button>
   </aside>
 
@@ -445,7 +464,8 @@
     nameInsetL: 0, nameInsetR: 0,
     orgFont: '', orgSize: 1, orgColor: '#111111', orgWeight: '400',
     orgAlign: 'distribute', orgLine: 3, orgBefore: 0, orgAfter: 0,
-    orgInsetL: 5, orgInsetR: 5
+    orgInsetL: 5, orgInsetR: 5,
+    midShow: true, midW: 0.3, midColor: '#111111'
   };
 
   /* ---- 元素 ---- */
@@ -461,6 +481,8 @@
       afterRange = $('afterRange'), afterNum = $('afterNum'), afterVal = $('afterVal'),
       insetLRange = $('insetLRange'), insetLNum = $('insetLNum'), insetLVal = $('insetLVal'),
       insetRRange = $('insetRRange'), insetRNum = $('insetRNum'), insetRVal = $('insetRVal'),
+      midShowChk = $('midShowChk'), midWRange = $('midWRange'), midWNum = $('midWNum'),
+      midWVal = $('midWVal'), midColorSw = $('midColorSw'), midColorInp = $('midColorInp'),
       wRange = $('wRange'), wNum = $('wNum'),
       hRange = $('hRange'), hNum = $('hNum'),
       gapNum = $('gapNum'),
@@ -529,6 +551,11 @@
     });
     if (['auto', 'portrait', 'landscape'].indexOf(out.paper) === -1) out.paper = DEFAULTS.paper;
     if (typeof out.crop !== 'boolean') out.crop = DEFAULTS.crop;
+    if (typeof out.midShow !== 'boolean') out.midShow = DEFAULTS.midShow;
+    var mw = parseFloat(out.midW);
+    if (isNaN(mw) || mw < 0.1) mw = DEFAULTS.midW;
+    out.midW = Math.min(1.5, mw);
+    if (!/^#[0-9a-fA-F]{6}$/.test(out.midColor)) out.midColor = DEFAULTS.midColor;
     return out;
   }
 
@@ -703,6 +730,10 @@
     var p = current();
     paperSel.value = p.paper;
     cropChk.checked = p.crop !== false;
+    midShowChk.checked = p.midShow !== false;
+    midWRange.value = p.midW;
+    midWNum.value = p.midW;
+    midColorInp.value = p.midColor;
     wRange.value = p.w; wNum.value = p.w;
     hRange.value = p.h; hNum.value = p.h;
     gapNum.value = p.gap;
@@ -734,6 +765,10 @@
     p.cardPadB = nonNeg(padBNum.value, DEFAULTS.cardPadB);
     p.cardPadL = nonNeg(padLNum.value, DEFAULTS.cardPadL);
     p.cardPadR = nonNeg(padRNum.value, DEFAULTS.cardPadR);
+    p.midShow = midShowChk.checked;
+    var mw = posNum(midWNum.value, DEFAULTS.midW);
+    p.midW = Math.min(1.5, Math.max(0.1, mw));
+    p.midColor = midColorInp.value;
   }
 
   function onUIInput(e) {
@@ -744,6 +779,7 @@
     if (el === afterRange) afterNum.value = afterRange.value;
     if (el === insetLRange) insetLNum.value = insetLRange.value;
     if (el === insetRRange) insetRNum.value = insetRRange.value;
+    if (el === midWRange) midWNum.value = midWRange.value;
     if (el === wRange) wNum.value = wRange.value;
     if (el === hRange) hNum.value = hRange.value;
     syncSliders();
@@ -766,6 +802,7 @@
     syncPair(afterRange, afterNum, 0, 2);
     syncPair(insetLRange, insetLNum, 0, 5);
     syncPair(insetRRange, insetRNum, 0, 5);
+    syncPair(midWRange, midWNum, 0.1, 1.5);
     syncPair(wRange, wNum, 1, 30);
     syncPair(hRange, hNum, 1, 30);
   }
@@ -807,7 +844,9 @@
               'line-height:' + posNum(p[kind + 'Line'], DEFAULTS[kind + 'Line']) + 'cm;' +
               'margin-top:' + nonNeg(p[kind + 'Before'], DEFAULTS[kind + 'Before']) + 'cm;' +
               'margin-bottom:' + nonNeg(p[kind + 'After'], DEFAULTS[kind + 'After']) + 'cm;';
-    if (kind === 'org') css += 'border-top:0.3mm solid ' + (p.orgColor || '#b8b8c2') + ';';
+    if (kind === 'org' && p.midShow !== false) {
+      css += 'border-top:' + posNum(p.midW, DEFAULTS.midW) + 'mm solid ' + (p.midColor || DEFAULTS.midColor) + ';';
+    }
     var il = nonNeg(p[kind + 'InsetL'], DEFAULTS[kind + 'InsetL']);
     var ir = nonNeg(p[kind + 'InsetR'], DEFAULTS[kind + 'InsetR']);
     if (il > 0 || ir > 0) {
@@ -827,6 +866,7 @@
     afterVal.textContent = nonNeg(p[k + 'After'], DEFAULTS[k + 'After']) + 'cm';
     insetLVal.textContent = nonNeg(p[k + 'InsetL'], DEFAULTS[k + 'InsetL']) + 'cm';
     insetRVal.textContent = nonNeg(p[k + 'InsetR'], DEFAULTS[k + 'InsetR']) + 'cm';
+    midWVal.textContent = posNum(p.midW, DEFAULTS.midW) + 'mm';
     var W = posNum(p.w, DEFAULTS.w);
     var H = posNum(p.h, DEFAULTS.h);
     var gap = nonNeg(p.gap, DEFAULTS.gap);
@@ -1009,6 +1049,7 @@
   /* ---- 初始化 ---- */
   fillFontSelects();
   buildSwatches(colorSw, colorInp);
+  buildSwatches(midColorSw, midColorInp);
   load();
   refreshProfileSelect();
   applyProfileToUI();
@@ -1018,6 +1059,7 @@
     fontSel, sizeRange, sizeNum, colorInp, weightSel, alignSel,
     lineRange, lineNum, beforeRange, beforeNum, afterRange, afterNum,
     insetLRange, insetLNum, insetRRange, insetRNum,
+    midShowChk, midWRange, midWNum, midColorInp,
     paperSel, cropChk,
     wRange, wNum, hRange, hNum, gapNum,
     padTNum, padBNum, padLNum, padRNum,
