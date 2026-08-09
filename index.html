@@ -807,7 +807,7 @@
               'line-height:' + posNum(p[kind + 'Line'], DEFAULTS[kind + 'Line']) + 'cm;' +
               'margin-top:' + nonNeg(p[kind + 'Before'], DEFAULTS[kind + 'Before']) + 'cm;' +
               'margin-bottom:' + nonNeg(p[kind + 'After'], DEFAULTS[kind + 'After']) + 'cm;';
-    if (kind === 'org') css += 'border-top:0.3mm solid #b8b8c2;';
+    if (kind === 'org') css += 'border-top:0.3mm solid ' + (p.orgColor || '#b8b8c2') + ';';
     var il = nonNeg(p[kind + 'InsetL'], DEFAULTS[kind + 'InsetL']);
     var ir = nonNeg(p[kind + 'InsetR'], DEFAULTS[kind + 'InsetR']);
     if (il > 0 || ir > 0) {
