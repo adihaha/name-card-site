@@ -98,8 +98,6 @@
   .grid2 .field{ margin-top:0; }
   .grid2 .size-row{ gap:6px; }
   .grid2 .size-row input[type=number]{ width:56px; }
-  .pad-grid .field.compact{ gap:6px; }
-  .pad-grid .field.compact input[type=number]{ width:64px; }
   .chk{ display:flex; align-items:center; gap:5px; cursor:pointer; white-space:nowrap; }
   .chk input{ width:15px; height:15px; accent-color:var(--accent); cursor:pointer; }
   .field select,
@@ -187,7 +185,7 @@
   .card .face.top{ border-top:0.45mm dashed #b0b0be; }
   .card .face.bottom{ transform:rotate(180deg); }
   .card .line{ width:100%; white-space:nowrap; }
-  .card .mid-line{ flex:none; }
+  .card .mid-line{ flex:none; width:100%; }
 
   /* ============ 打印：只输出姓名牌页 ============ */
   @media print{
@@ -216,14 +214,14 @@
     <summary>📖 使用说明</summary>
     <ol>
       <li>名单每行一个「姓名 单位」，空格或 Tab 分隔，可只写姓名。</li>
-      <li>「卡片整体设置」：卡片宽高、纸张方向、牌间距、内边距与裁剪线；「卡片内容行设置」：姓名/单位各自的字体、字号、颜色、字重、对齐、左右边距、行高、段前/段后。</li>
-      <li>行高为该行固定高度，建议不小于字号的 1.4 倍；姓名与单位间距 = 姓名段后 + 单位段前。</li>
+      <li>「卡片整体设置」：卡片宽高、纸张方向、牌间距与裁剪线；「卡片内容行设置」：姓名/单位各自的字体、字号、颜色、字重、对齐、左右边距、行高、段前/段后。</li>
+      <li>行高为该行固定高度，建议不小于字号的 1.4 倍；姓名与单位之间为分割线，可在「分割线设置」开关、调线宽与颜色。</li>
       <li>滑块仅作辅助，数字框可填任意值（单位 cm），以预览效果为准。</li>
       <li>「样式配置」可保存多套配置，切换即整批换样式；名单独立保存，自动存在本机浏览器。</li>
-      <li>卡片内容靠上排列：姓名离上边缘 = 卡片上边距 + 姓名段前；每行左右留白由该行「左右边距」控制。</li>
-      <li>「显示裁剪线」开启时卡片外沿打印一圈虚线，剪下后沿中间折线对折成帐篷。</li>
+      <li>卡片内容靠上排列：姓名离中间虚线 = 姓名段前；单位离卡片底边 = 单位段后；每行左右留白由该行「左右边距」控制。</li>
+      <li>「显示裁剪线」开启时卡片外沿打印一圈虚线，剪下后沿中间虚线对折成帐篷。</li>
     </ol>
-    <p class="fold-tip"><b>折叠：</b>沿虚线对折成倒 V 帐篷形，上下两面名字都朝上（下半已旋转 180°）。</p>
+    <p class="fold-tip"><b>折叠：</b>沿中间虚线对折成倒 V 帐篷形，两个半面互为镜像（上半面已旋转 180°），折叠后两侧都是姓名在顶部、单位在底部。</p>
   </details>
 </div>
 
@@ -298,12 +296,6 @@
       <div class="field compact">
         <label>牌间距</label>
         <input id="gapNum" type="number" step="0.05">
-      </div>
-      <div class="grid2 pad-grid">
-        <div class="field compact"><label>内边距·上</label><input id="padTNum" type="number" step="0.05"></div>
-        <div class="field compact"><label>内边距·下</label><input id="padBNum" type="number" step="0.05"></div>
-        <div class="field compact"><label>内边距·左</label><input id="padLNum" type="number" step="0.05"></div>
-        <div class="field compact"><label>内边距·右</label><input id="padRNum" type="number" step="0.05"></div>
       </div>
     </details>
 
@@ -395,9 +387,9 @@
     </details>
 
     <details class="side-sec" open>
-      <summary class="sec-label">中间线设置（姓名与单位之间）</summary>
+      <summary class="sec-label">分割线设置（姓名与单位之间）</summary>
       <div class="field" style="margin-top:0;">
-        <label class="chk" style="font-size:12px;"><input id="midShowChk" type="checkbox" checked> 显示中间线</label>
+        <label class="chk" style="font-size:12px;"><input id="midShowChk" type="checkbox" checked> 显示分割线</label>
       </div>
       <div class="field">
         <label>线宽 <span id="midWVal" class="val">0.3mm</span></label>
@@ -460,7 +452,6 @@
   var DEFAULTS = {
     w: 20, h: 10, gap: 0.5, crop: true,
     paper: 'portrait',
-    cardPadT: 1, cardPadB: 0, cardPadL: 0.4, cardPadR: 0.4,
     nameFont: '', nameSize: 5, nameColor: '#111111', nameWeight: '700',
     nameAlign: 'distribute', nameLine: 5, nameBefore: 0, nameAfter: 0,
     nameInsetL: 0, nameInsetR: 0,
@@ -488,8 +479,6 @@
       wRange = $('wRange'), wNum = $('wNum'),
       hRange = $('hRange'), hNum = $('hNum'),
       gapNum = $('gapNum'),
-      padTNum = $('padTNum'), padBNum = $('padBNum'),
-      padLNum = $('padLNum'), padRNum = $('padRNum'),
       list = $('list'), pages = $('pages'), stat = $('stat'), printBtn = $('printBtn');
 
   var profiles = [], activeId = null, target = 'name';
@@ -538,8 +527,7 @@
       out[k] = posNum(out[k], DEFAULTS[k]);
     });
     ['nameBefore', 'nameAfter', 'orgBefore', 'orgAfter',
-     'nameInsetL', 'nameInsetR', 'orgInsetL', 'orgInsetR',
-     'cardPadT', 'cardPadB', 'cardPadL', 'cardPadR'].forEach(function (k) {
+     'nameInsetL', 'nameInsetR', 'orgInsetL', 'orgInsetR'].forEach(function (k) {
       out[k] = nonNeg(out[k], DEFAULTS[k]);
     });
     ['nameWeight', 'orgWeight'].forEach(function (k) {
@@ -739,10 +727,6 @@
     wRange.value = p.w; wNum.value = p.w;
     hRange.value = p.h; hNum.value = p.h;
     gapNum.value = p.gap;
-    padTNum.value = p.cardPadT;
-    padBNum.value = p.cardPadB;
-    padLNum.value = p.cardPadL;
-    padRNum.value = p.cardPadR;
     applyTargetToUI();
   }
 
@@ -763,10 +747,6 @@
     p.w = posNum(wNum.value, DEFAULTS.w);
     p.h = posNum(hNum.value, DEFAULTS.h);
     p.gap = nonNeg(gapNum.value, DEFAULTS.gap);
-    p.cardPadT = nonNeg(padTNum.value, DEFAULTS.cardPadT);
-    p.cardPadB = nonNeg(padBNum.value, DEFAULTS.cardPadB);
-    p.cardPadL = nonNeg(padLNum.value, DEFAULTS.cardPadL);
-    p.cardPadR = nonNeg(padRNum.value, DEFAULTS.cardPadR);
     p.midShow = midShowChk.checked;
     var mw = posNum(midWNum.value, DEFAULTS.midW);
     p.midW = Math.min(1.5, Math.max(0.1, mw));
@@ -857,12 +837,10 @@
     return alignCss(p[kind + 'Align'], css);
   }
 
-  /* 中间线：文档流内元素，负 margin 抵消卡片左右内边距，撑满卡片边界 */
+  /* 分割线：姓名与单位之间，width:100% 横向贯穿整卡 */
   function midLineStyle(p) {
     if (p.midShow === false) return 'display:none;';
     return 'border-top:' + posNum(p.midW, DEFAULTS.midW) + 'mm solid ' + (p.midColor || DEFAULTS.midColor) + ';' +
-           'margin-left:-' + nonNeg(p.cardPadL, DEFAULTS.cardPadL) + 'cm;' +
-           'margin-right:-' + nonNeg(p.cardPadR, DEFAULTS.cardPadR) + 'cm;' +
            'margin-top:' + nonNeg(p.orgBefore, DEFAULTS.orgBefore) + 'cm;';
   }
 
@@ -878,10 +856,6 @@
     var W = posNum(p.w, DEFAULTS.w);
     var H = posNum(p.h, DEFAULTS.h);
     var gap = nonNeg(p.gap, DEFAULTS.gap);
-    var padCss = 'padding:' + nonNeg(p.cardPadT, DEFAULTS.cardPadT) + 'cm ' +
-                 nonNeg(p.cardPadR, DEFAULTS.cardPadR) + 'cm ' +
-                 nonNeg(p.cardPadB, DEFAULTS.cardPadB) + 'cm ' +
-                 nonNeg(p.cardPadL, DEFAULTS.cardPadL) + 'cm;';
     var cardH = H * 2; /* 展开总高 = 两个显示面 */
     var ori = resolvePaper(p.paper, W, cardH);
     document.body.classList.toggle('paper-portrait', ori === 'portrait');
@@ -909,10 +883,10 @@
               'grid-template-rows:repeat(' + rows + ',' + cardH + 'cm);gap:' + gap + 'cm">';
       slice.forEach(function (pe) {
         html += '<div class="card' + (p.crop ? ' show-crop' : '') + '" style="width:' + W + 'cm;height:' + cardH + 'cm">' +
-          '<div class="face bottom" style="' + padCss + '"><div class="line" style="' + lineStyle(p, 'org') + '">' + esc(pe.org) + '</div>' +
+          '<div class="face bottom"><div class="line" style="' + lineStyle(p, 'name') + '">' + esc(pe.name) + '</div>' +
           '<div class="mid-line" style="' + midLineStyle(p) + '"></div>' +
-          '<div class="line" style="' + lineStyle(p, 'name') + '">' + esc(pe.name) + '</div></div>' +
-          '<div class="face top" style="' + padCss + '"><div class="line" style="' + lineStyle(p, 'name') + '">' + esc(pe.name) + '</div>' +
+          '<div class="line" style="' + lineStyle(p, 'org') + '">' + esc(pe.org) + '</div></div>' +
+          '<div class="face top"><div class="line" style="' + lineStyle(p, 'name') + '">' + esc(pe.name) + '</div>' +
           '<div class="mid-line" style="' + midLineStyle(p) + '"></div>' +
           '<div class="line" style="' + lineStyle(p, 'org') + '">' + esc(pe.org) + '</div></div>' +
           '</div>';
@@ -1072,7 +1046,6 @@
     midShowChk, midWRange, midWNum, midColorInp,
     paperSel, cropChk,
     wRange, wNum, hRange, hNum, gapNum,
-    padTNum, padBNum, padLNum, padRNum,
     list
   ];
   bindFields.forEach(function (el) {
