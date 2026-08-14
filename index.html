@@ -524,6 +524,10 @@
     Object.keys(DEFAULTS).forEach(function (k) {
       out[k] = (p && p[k] !== undefined && p[k] !== null) ? p[k] : d[k];
     });
+    /* 空字体=旧版未设置，自动升级为默认华文新魏 */
+    ['nameFont', 'orgFont'].forEach(function (k) {
+      if (!out[k]) out[k] = DEFAULTS[k];
+    });
     out.id = (p && p.id) || uid();
     out.name = (p && p.name) || '未命名配置';
     out.w = posNum(out.w, DEFAULTS.w);
