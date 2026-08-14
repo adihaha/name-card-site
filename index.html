@@ -612,11 +612,14 @@
     var cur = fontSel.value;
     fontSel.innerHTML = '<option value="">系统默认</option>';
     FONT_LIST.forEach(function (f) {
-      if (!fontAvailable(f.value)) return;
-      var o = document.createElement('option');
-      o.value = f.value;
-      o.textContent = f.label;
-      fontSel.appendChild(o);
+      /* @font-face 打包的字体(如 STXinwei)跳过 canvas 同步检测——字体异步加载中可能检测失败，
+         但 @font-face 保证浏览器可加载，直接放行 */
+      if (f.value === 'STXinwei' || fontAvailable(f.value)) {
+        var o = document.createElement('option');
+        o.value = f.value;
+        o.textContent = f.label;
+        fontSel.appendChild(o);
+      }
     });
     fontSel.value = cur;
   }
